@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from './secureSession';
 
 export class ApiError extends Error {
@@ -23,7 +24,11 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   if (!baseUrl) throw new ApiError('CM Library API is not configured.');
 
   const isLocalDevelopment = /^(http:\/\/(localhost|127\.0\.0\.1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.))/i.test(baseUrl);
-  if (!baseUrl.startsWith('https://') && !(__DEV__ && isLocalDevelopment)) {
+  const isLoopbackBrowserPreview = Platform.OS === 'web'
+    && typeof window !== 'undefined'
+    && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const allowLocalHttp = isLocalDevelopment && (__DEV__ || isLoopbackBrowserPreview);
+  if (!baseUrl.startsWith('https://') && !allowLocalHttp) {
     throw new ApiError('Use HTTPS for the CM Library API outside local development.');
   }
 
