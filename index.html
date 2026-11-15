@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CM Library — Library Management System</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+/* 60% lavender-white base | 20% electric violet | 10% orange accent | 10% green/red status */
+--bg:#f6f4ff;--card:#fff;--tx:#1b1740;--mu:#6b6890;--bd:#e4e0fa;
+--pr:#5b3df5;--pr2:#8a5cff;--ac:#ff7a1a;--ac2:#ff4d4d;--ok:#12b76a;--no:#e5484d;--fr:#e3f8ee;--bk:#ffe9e4;
+--fd:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{color-scheme:light}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "DM Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:900px;margin:0 auto;padding:14px 14px 120px}
+h1,h2,b[style*="font-size"]{font-family:var(--fd)}h1{font-size:22px;margin:0;letter-spacing:-.3px}h2{font-size:18px;margin:0 0 10px;letter-spacing:-.2px}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;color:#fff;padding:16px 18px;border-radius:24px;background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.18) 1.5px,transparent 2px) 0 0/14px 14px,linear-gradient(135deg,var(--pr),var(--pr2));box-shadow:0 10px 28px rgba(91,61,245,.3)}
+.bar .mu{color:#e4dcff;font-family:"DM Sans",sans-serif}.bar button.g{color:#fff;border-color:rgba(255,255,255,.6)}
+.card{background:var(--card);border:1.5px solid var(--bd);border-radius:20px;padding:15px;margin-bottom:12px}
+input,select{width:100%;min-width:0;padding:12px;border:1.5px solid var(--bd);border-radius:14px;background:var(--bg);color:var(--tx);font:inherit;margin:4px 0 8px;transition:border .15s,box-shadow .15s}
+input:focus,select:focus{outline:0;border-color:var(--pr);box-shadow:0 0 0 4px rgba(138,92,255,.22)}
+button{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:0;border-radius:14px;padding:11px 15px;font:700 15px "DM Sans",sans-serif;cursor:pointer;box-shadow:0 6px 14px rgba(255,100,40,.32);transition:transform .12s}
+button:active{transform:scale(.95)}button:focus-visible{outline:3px solid var(--pr2);outline-offset:2px}
+button.g{background:transparent;color:var(--pr);border:1.5px solid var(--bd);box-shadow:none}button.d{background:var(--no);box-shadow:none}
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(94vw,880px);z-index:5;display:flex;gap:4px;padding:6px;overflow-x:auto;background:var(--card);border:1.5px solid var(--bd);border-radius:24px;box-shadow:0 14px 36px rgba(91,61,245,.28)}
+.tabs button{flex:1 0 auto;white-space:nowrap;box-shadow:none;border-radius:18px;padding:10px 14px}
+.tabs button.on{background:var(--pr);color:#fff}.tabs button:not(.on){background:transparent;color:var(--mu);border:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:9px}
+.seat{border-radius:16px 16px 8px 8px;padding:10px 2px 6px;text-align:center;font:800 18px var(--fd);cursor:pointer;background:var(--fr);border:1.5px solid #b7ecd0;border-bottom:6px solid var(--ok);transition:transform .12s}
+.seat:active{transform:scale(.93)}.seat.b{background:var(--bk);border-color:#ffc4b8;border-bottom-color:var(--ac2)}
+.seat small{display:block;font:400 10px "DM Sans",sans-serif;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.legend{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.mu{color:var(--mu);font-size:13px}.tag{padding:3px 11px;border-radius:99px;font-size:12px;font-weight:700}
+.ok{background:var(--fr);color:var(--ok)}.no{background:var(--bk);color:var(--no)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.two>*{min-width:0}
+.big{font-size:17px;padding:15px;width:100%}.qr{display:flex;justify-content:center;padding:12px;background:#fff;border-radius:18px;width:max-content;margin:8px auto;border:3px solid var(--pr)}
+img{max-width:100%}video{width:100%;border-radius:18px;background:#000}
+.hero{position:relative;overflow:hidden;color:#fff;border-radius:28px;padding:26px 22px 22px;margin-top:3vh;background:linear-gradient(150deg,var(--pr),var(--pr2));box-shadow:0 16px 40px rgba(91,61,245,.35)}
+.hero .seats{display:grid;grid-template-columns:repeat(8,1fr);gap:7px;margin-bottom:22px;max-width:300px}
+.hero i{aspect-ratio:1;border-radius:9px 9px 4px 4px;background:rgba(255,255,255,.2);animation:pop .5s both;animation-delay:calc(var(--n)*35ms)}
+.hero i.b{background:var(--ac)}.hero i.m{background:#3ee08f}
+.hero h1{font-size:34px;line-height:1.05;letter-spacing:-1px}.hero p{margin:10px 0 0;color:#e4dcff}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+.login{margin-top:-18px;position:relative;box-shadow:0 12px 30px rgba(27,23,64,.12)}
+.pass{background:linear-gradient(135deg,var(--pr),var(--pr2));color:#fff;border-radius:26px;margin-bottom:14px;overflow:hidden;box-shadow:0 14px 32px rgba(91,61,245,.32)}
+.pass .mu{color:#ddd5ff}.pimg{width:100%;height:110px;object-fit:cover;display:block;opacity:.9}.pt{padding:18px 20px 16px}.pt h2{font-size:26px;margin:3px 0 2px}
+.perf{border-top:2px dashed rgba(255,255,255,.5);margin:0 16px;position:relative}
+.perf:before,.perf:after{content:"";position:absolute;top:-12px;width:24px;height:24px;border-radius:50%;background:var(--bg)}.perf:before{left:-28px}.perf:after{right:-28px}
+.pb{display:flex;justify-content:space-between;align-items:flex-end;padding:14px 20px 20px}
+.sn{font:800 58px/1 var(--fd);color:#ffb84d;display:block;letter-spacing:-2px}
+.scan{width:172px;height:172px;border-radius:50%;margin:14px auto 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:800 22px var(--fd);position:relative}
+.scan span{font-size:40px}.scan:before{content:"";position:absolute;inset:-8px;border-radius:50%;border:3px solid var(--ac);animation:ring 2s ease-out infinite}
+@keyframes ring{from{transform:scale(.92);opacity:.9}to{transform:scale(1.18);opacity:0}}
+#msg{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);padding:11px 18px;border-radius:99px;display:none;z-index:9;max-width:90%;font-weight:700}
+/* Calm theme: white + light purple-gray, one soft violet accent */
+:root{--bg:#ecebf4;--card:#fff;--tx:#2a2740;--mu:#7a7894;--bd:#dcd9ea;--pr:#6b5bd6;--pr2:#8b7ee6;--fr:#e6f6ee;--bk:#fdebe9}
+.bar{background:var(--card);color:var(--tx);box-shadow:none;border:1.5px solid var(--bd)}
+.bar .mu{color:var(--mu)}.bar button.g{color:var(--pr);border-color:var(--bd)}
+button{background:var(--pr);box-shadow:none}button.g{background:transparent}button.d{background:var(--no)}
+.tabs{box-shadow:0 8px 24px rgba(42,39,64,.12)}.tabs button.on{background:var(--pr);color:#fff}
+.hero{background:var(--card);color:var(--tx);box-shadow:none;border:1.5px solid var(--bd)}
+.hero p{color:var(--mu)}.hero i{background:var(--bd)}.hero i.b{background:var(--pr)}.hero i.m{background:#3ecf8e}
+.login{box-shadow:none}
+.pass{background:var(--card);color:var(--tx);box-shadow:none;border:1.5px solid var(--bd)}
+.pass .mu{color:var(--mu)}.pt{background:var(--bg)}.perf{border-top-color:var(--bd)}.sn{color:var(--pr)}
+.scan:before{border-color:var(--pr)}.qr{border-color:var(--bd)}
+#msg{background:var(--pr);color:#fff}
+/* Motion: screens slide up in sequence, seats pop in, buttons lift, toast slides */
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+@keyframes down{from{opacity:0;transform:translateY(-18px)}}
+@keyframes toast{from{opacity:0;transform:translate(-50%,18px)}}
+.go .bar{animation:down .5s cubic-bezier(.2,.8,.2,1) both}
+.go #body>*,.go #tb>*,.go>.hero,.go>.card{animation:up .55s cubic-bezier(.2,.8,.2,1) both}
+.go #body>*:nth-child(2),.go #tb>*:nth-child(2){animation-delay:.07s}
+.go #body>*:nth-child(3),.go #tb>*:nth-child(3){animation-delay:.14s}
+.go #body>*:nth-child(4),.go #tb>*:nth-child(4){animation-delay:.21s}
+.go #body>*:nth-child(n+5),.go #tb>*:nth-child(n+5){animation-delay:.28s}
+.go>.card{animation-delay:.25s}
+.go .seat{animation:pop .45s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(min(var(--n),30)*20ms)}
+.go .row{animation:up .45s both}
+button:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(107,91,214,.35)}
+button.g:hover{box-shadow:none;background:var(--bg)}
+.seat:hover{transform:translateY(-3px) scale(1.06)}
+.card{transition:transform .2s,box-shadow .2s}.card:hover{box-shadow:0 8px 22px rgba(42,39,64,.08)}
+#msg{animation:toast .35s cubic-bezier(.2,.8,.2,1)}
+.sn{display:inline-block;animation:pop .6s cubic-bezier(.3,1.5,.5,1) .3s both}
+.libpick{position:relative}
+.liblist{position:absolute;z-index:8;left:0;right:0;top:calc(100% - 4px);background:#fff;border:1.5px solid var(--bd);border-radius:14px;box-shadow:0 12px 28px rgba(42,39,64,.14);max-height:240px;overflow:auto}
+.libopt{display:flex;flex-direction:column;align-items:flex-start;width:100%;margin:0;padding:12px 14px;background:#fff;color:var(--tx);border:0;border-bottom:1px solid var(--bd);border-radius:0;box-shadow:none;text-align:left}
+.libpick{width:100%;min-width:0}.libpick>#rlq{display:block;width:100%;min-width:0;height:50px}.liblist{width:100%;max-width:100%;box-sizing:border-box}.libopt{min-height:50px}
+.libopt:last-child{border-bottom:0}
+.libopt:hover,.libopt:focus{background:var(--bg);transform:none;box-shadow:none}
+.welcome h2{font-size:30px;line-height:1.1;margin:6px 0 0}
+.chart-wrap{overflow:hidden}
+.dots{width:44px;height:44px;padding:0;border-radius:50%;font-size:22px;line-height:1;letter-spacing:1px;background:var(--bg);color:var(--tx);border:1.5px solid var(--bd);box-shadow:none;flex:0 0 auto}
+.dots:hover{transform:none;box-shadow:none;background:#e4e1f2}
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(42,39,64,.4);display:flex;align-items:flex-end;justify-content:center}
+.sheet .card{width:min(520px,100%);margin:0;border-radius:24px 24px 0 0;padding:8px 14px calc(18px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow:auto}
+.sheet .card button{margin-top:8px}
+.who{width:52px;height:52px;border-radius:50%;background:var(--pr);color:#fff;display:flex;align-items:center;justify-content:center;font:800 22px var(--fd);flex:0 0 auto}
+@media(prefers-reduced-motion:reduce){.scan:before{animation:none}}
+/* CM Library authentication experience */
+:root{--bg:#F7F7FC;--card:#fff;--tx:#191A35;--mu:#74758b;--bd:#E7E7F0;--pr:#5145CD;--pr2:#7665E8;--ok:#36C99A;--fr:#e9fbf5;--fd:"DM Sans",system-ui,sans-serif}
+.w:has(.auth-shell){max-width:none;min-height:100svh;padding:0;background:var(--bg)}
+.auth-shell{min-height:100svh;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px, 48%);background:#fff}
+.auth-story{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(32px,6vw,76px);color:#fff;background:#191A35}
+.auth-story:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.32;background:linear-gradient(130deg,transparent 45%,rgba(118,101,232,.3)),repeating-linear-gradient(90deg,transparent 0 72px,rgba(255,255,255,.045) 73px 74px)}
+.auth-story:after{content:"";position:absolute;z-index:-1;width:min(56vw,760px);height:min(56vw,760px);border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-22%;bottom:-42%;box-shadow:0 0 0 56px rgba(255,255,255,.025),0 0 0 112px rgba(255,255,255,.02)}
+.auth-brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}.auth-mark{width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.3);border-radius:13px;background:rgba(255,255,255,.08)}.auth-mark svg{width:22px;height:22px}.auth-brand-name{font-size:20px;font-weight:800;letter-spacing:.13em}.auth-brand-sub{display:block;margin-top:2px;font-size:11px;line-height:1.25;letter-spacing:.03em;color:rgba(255,255,255,.68)}
+.auth-story-copy{max-width:620px;margin:60px 0}.auth-eyebrow{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#a9a1ff}.auth-story h1{max-width:590px;margin:18px 0;font-size:clamp(42px,5.4vw,72px);line-height:1.03;letter-spacing:-.055em;font-weight:700}.auth-story-copy p{max-width:490px;margin:0;color:rgba(255,255,255,.7);font-size:17px;line-height:1.75}.auth-proof{display:flex;align-items:center;gap:12px;color:rgba(255,255,255,.68);font-size:13px}.auth-proof svg{width:18px;height:18px;color:#36C99A}.auth-proof span{display:block}.auth-proof strong{color:#fff;font-weight:600}
+.auth-panel{display:flex;justify-content:center;align-items:center;padding:clamp(26px,6vw,80px);background:var(--bg)}.auth-form-wrap{width:min(100%,420px)}.auth-mobile-brand{display:none}.auth-form-head{margin-bottom:28px}.auth-form-head h2{font-size:30px;letter-spacing:-.04em;margin:0 0 8px}.auth-form-head p{margin:0;color:var(--mu);font-size:14px}.auth-field{margin:0 0 18px}.auth-field label{display:block;margin-bottom:7px;font-size:13px;font-weight:600;color:#383950}.auth-input-wrap{position:relative}.auth-field input{height:52px;margin:0;padding:0 14px;border:1px solid var(--bd);border-radius:11px;background:#fff;font-size:15px}.auth-field input:focus{border-color:var(--pr);box-shadow:0 0 0 4px rgba(81,69,205,.11)}.auth-password{padding-right:70px!important}.auth-show{position:absolute;right:8px;top:7px;min-width:52px;height:38px;padding:0 9px;border:0;border-radius:8px;background:transparent;color:var(--pr);font-size:12px;font-weight:700;box-shadow:none}.auth-show:hover{background:#f1efff;transform:none;box-shadow:none}.auth-options{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:-2px 0 22px;font-size:13px}.auth-remember{display:flex;align-items:center;gap:8px;color:#55566b}.auth-remember input{width:16px;height:16px;margin:0;accent-color:var(--pr)}.auth-link{border:0;background:none;padding:4px;color:var(--pr);font:600 13px inherit;box-shadow:none;text-decoration:none}.auth-link:hover{background:transparent;box-shadow:none;transform:none;text-decoration:underline}.auth-submit{height:52px;width:100%;border-radius:11px;background:var(--pr);color:white;box-shadow:0 8px 18px rgba(81,69,205,.2);font-size:15px}.auth-submit:hover{background:#4338b8;box-shadow:0 10px 22px rgba(81,69,205,.24);transform:translateY(-1px)}.auth-submit:disabled{opacity:.72;cursor:wait;transform:none}.auth-register{margin:20px 0 0;text-align:center;color:var(--mu);font-size:14px}.auth-register .auth-link{font-size:14px}.auth-error{display:none;margin:0 0 16px;padding:11px 13px;border:1px solid #f4c6ca;border-radius:10px;background:#fff4f4;color:#a62d38;font-size:13px}.auth-error.show{display:block}.auth-foot{margin-top:42px;text-align:center;color:#9394a7;font-size:12px}.auth-foot b{color:#57586e;font-weight:600}
+.auth-register-view .auth-form-wrap{padding:30px;background:white;border:1px solid var(--bd);border-radius:18px;box-shadow:0 18px 50px rgba(25,26,53,.06)}.auth-register-view .auth-mobile-brand{display:flex;color:var(--tx);margin-bottom:32px}.auth-register-view .auth-mobile-brand .auth-brand-sub{color:var(--mu)}.auth-register-view .auth-mark{background:#f1efff;color:var(--pr);border-color:#e5e1ff}.auth-register-view .auth-form-wrap>input{height:50px;background:#fff;border:1px solid var(--bd);border-radius:10px}.auth-register-view .auth-form-wrap>input:focus{border-color:var(--pr);box-shadow:0 0 0 4px rgba(81,69,205,.11)}
+.sub-manage{margin-top:12px;padding:12px;border:1px solid var(--bd);border-radius:14px;background:#fbfbfe}.sub-manage summary{cursor:pointer;color:var(--pr);font-weight:700}.sub-manage .two{margin-top:8px}.sub-history{margin-top:8px}.sub-history .row{align-items:flex-start}.sub-status{display:inline-block;padding:2px 9px;border-radius:99px;background:#eeedfb;color:var(--pr);font-size:11px;font-weight:700;text-transform:capitalize}.sub-status.paid{background:var(--fr);color:#188761}.sub-status.overdue{background:#fff0ee;color:#bc4238}
+.greeting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px;padding:18px 20px;border:1px solid var(--bd);border-radius:20px;background:linear-gradient(110deg,#fff,#f5f4ff)}.greeting h2{margin:0 0 3px;font-size:22px;letter-spacing:-.4px}.greeting p{margin:0;color:var(--mu);font-size:13px}.greeting-date{white-space:nowrap;color:var(--mu);font-size:12px}.w:has(.super-tabs){padding-bottom:28px}.super-tabs{position:static;left:auto;bottom:auto;transform:none;width:100%;z-index:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 14px;padding:7px;overflow:visible;border-radius:18px;box-shadow:0 8px 24px rgba(42,39,64,.1)}.super-tabs button{width:100%;min-width:0;white-space:normal;line-height:1.2;padding:11px 8px;border-radius:13px}.library-user-group{margin-bottom:12px}.library-user-group>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;list-style:none}.library-user-group>summary::-webkit-details-marker{display:none}.library-user-group>summary:after{content:"＋";color:var(--pr);font-weight:700}.library-user-group[open]>summary:after{content:"−"}.library-user-content{margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)}.user-section-title{margin:0 0 7px;font-size:14px}.user-info{min-width:0}.user-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.report-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.report-actions button{min-height:48px}.user-search{margin-bottom:12px}
+@media(max-width:600px){.greeting{align-items:flex-start;padding:15px 16px}.greeting h2{font-size:19px}.greeting-date{white-space:normal;text-align:right;max-width:104px}.bar{padding:12px 14px}.bar h1{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:19px;line-height:1.1}.bar h1 .mu{font-size:11px!important;line-height:1.2}.super-tabs{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;position:static;transform:none;overflow:visible}.super-tabs button{flex:initial}.report-actions{grid-template-columns:1fr}}
+@media(max-width:820px){.auth-shell{grid-template-columns:1fr}.auth-story{display:none}.auth-panel{min-height:100svh;align-items:flex-start;padding:clamp(30px,8vh,72px) 22px}.auth-mobile-brand{display:flex;color:var(--tx);margin-bottom:54px}.auth-mobile-brand .auth-brand-sub{color:var(--mu)}.auth-mobile-brand .auth-mark{background:#f1efff;color:var(--pr);border-color:#e5e1ff}.auth-foot{margin-top:32px}}
+@media(max-width:390px){.auth-panel{padding-left:18px;padding-right:18px}.auth-mobile-brand{margin-bottom:40px}.auth-form-head h2{font-size:27px}.auth-options{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+/* CM Library day/night themes and brand controls */
+.bar-actions{display:flex;align-items:center;gap:8px}.bar h1 .brand-inline{display:inline-flex;align-items:center;gap:8px}.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--pr);box-shadow:none;flex:0 0 auto}.theme-toggle:hover{background:var(--bg);box-shadow:none;transform:none}.theme-toggle svg{width:19px;height:19px}.auth-shell{position:relative}.auth-shell>.theme-toggle{position:absolute;z-index:4;right:20px;top:20px}.auth-mobile-brand{padding-right:54px}.app-mark{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;flex:0 0 42px;overflow:hidden;border:1px solid rgba(81,69,205,.12);border-radius:11px;background:#fff;vertical-align:middle}.app-mark svg{width:31px;height:31px;display:block}.auth-brand-name{letter-spacing:.01em}
+html[data-theme="dark"]{color-scheme:dark;--bg:#11131f;--card:#1a1d2b;--tx:#edf0fa;--mu:#a0a7ba;--bd:#34394b;--pr:#a49aff;--pr2:#b8adff;--ok:#46d6ab;--no:#ff858b;--fr:#1b3a32;--bk:#41292c}
+html[data-theme="dark"] body,html[data-theme="dark"] .auth-panel{background:var(--bg);color:var(--tx)}
+html[data-theme="dark"] .auth-form-wrap,html[data-theme="dark"] .auth-register-view .auth-form-wrap,html[data-theme="dark"] .auth-field input,html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] .liblist,html[data-theme="dark"] .libopt,html[data-theme="dark"] .sub-manage,html[data-theme="dark"] .card[style*="background:#fbfbfe"]{background:var(--card);color:var(--tx)}
+html[data-theme="dark"] .libopt{border-bottom-color:var(--bd)}html[data-theme="dark"] .libopt:hover,html[data-theme="dark"] .libopt:focus{background:#25283a}html[data-theme="dark"] .auth-form-wrap{border-color:var(--bd)}html[data-theme="dark"] .auth-register-view .auth-form-wrap>input{background:var(--card)}html[data-theme="dark"] .auth-mobile-brand .auth-mark{background:var(--card);border-color:var(--bd)}html[data-theme="dark"] .dots{background:#25283a;color:var(--tx)}html[data-theme="dark"] .greeting{background:linear-gradient(110deg,#1a1d2b,#20233a)}html[data-theme="dark"] .sheet{background:rgba(0,0,0,.62)}html[data-theme="dark"] .sub-manage{border-color:var(--bd)}html[data-theme="dark"] .auth-field label{color:#d0d3e1}html[data-theme="dark"] .auth-foot{color:var(--mu)}
+@media(max-width:600px){.auth-shell>.theme-toggle{top:16px;right:16px}.auth-mobile-brand{padding-right:48px}.bar h1{flex-direction:column;align-items:flex-start}.theme-toggle{width:40px;height:40px}}
+/* Expo-inspired frosted glass buttons */
+:root{--glass-fill:rgba(81,69,205,.88);--glass-ghost:rgba(255,255,255,.66);--glass-edge:rgba(255,255,255,.76);--glass-shadow:0 8px 20px rgba(42,39,64,.14)}
+html[data-theme="dark"]{--glass-fill:rgba(129,116,244,.82);--glass-ghost:rgba(255,255,255,.07);--glass-edge:rgba(255,255,255,.18);--glass-shadow:0 8px 22px rgba(0,0,0,.3)}
+button:not(.g):not(.d):not(.seat):not(.libopt):not(.auth-show):not(.auth-link):not(.dots):not(.scan):not(.theme-toggle):not(.tabs button){background-color:var(--glass-fill);background-image:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.03) 55%,rgba(255,255,255,.1));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),var(--glass-shadow);backdrop-filter:blur(14px) saturate(155%);-webkit-backdrop-filter:blur(14px) saturate(155%)}
+button.g:not(.auth-link){background:var(--glass-ghost);border-color:var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 12px rgba(42,39,64,.06);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%)}
+.tabs{background:rgba(255,255,255,.72);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}.tabs button.on{background-color:var(--glass-fill);background-image:linear-gradient(145deg,rgba(255,255,255,.26),rgba(255,255,255,.04));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),var(--glass-shadow);backdrop-filter:blur(14px) saturate(155%);-webkit-backdrop-filter:blur(14px) saturate(155%)}
+.theme-toggle{background:var(--glass-ghost);border-color:var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 6px 16px rgba(42,39,64,.1);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%)}html[data-theme="dark"] .tabs{background:rgba(26,29,43,.78)}html[data-theme="dark"] .theme-toggle,html[data-theme="dark"] button.g:not(.auth-link){box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 16px rgba(0,0,0,.22)}
+.scan{background-color:var(--glass-fill);background-image:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.03) 55%,rgba(255,255,255,.1));border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),var(--glass-shadow);backdrop-filter:blur(14px) saturate(155%);-webkit-backdrop-filter:blur(14px) saturate(155%)}
+</style></head><body><div class="w" id="app"></div><div id="msg"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ---- Standalone mode: data is kept in this browser's localStorage ---- */
+function localDB(){
+  const K="librarypass_db",L=()=>{try{return JSON.parse(localStorage.getItem(K))||{}}catch(e){return{}}},W=d=>{try{localStorage.setItem(K,JSON.stringify(d))}catch(e){}},subs={};
+  const d0=L();if(!d0.libraries){d0.libraries={demo1:{name:"Demo Study Library",address:"Indore, MP",seats:30,adminUser:"admin",adminPass:"Admin@123",commission:10,created:Date.now()}};d0.students={demostudent1:{lib:"demo1",name:"Demo Student",phone:"9999999999",pin:"1234",seat:5,fee:500,paid:false,start:"2026-11-01",end:"2026-11-30",due:"2026-11-30",status:"active",joined:Date.now()}};W(d0)}
+  const emit=c=>{const d=L()[c]||{};(subs[c]||[]).forEach(f=>f({docs:Object.entries(d).map(([id,v])=>({id,data:()=>v}))}))};
+  const mut=(c,fn)=>{const d=L();d[c]=d[c]||{};fn(d[c]);W(d);emit(c);return Promise.resolve()};
+  return {collection:c=>({
+    onSnapshot(cb){(subs[c]=subs[c]||[]).push(cb);setTimeout(()=>emit(c),0)},
+    add(v){const id=Math.random().toString(36).slice(2,10);return mut(c,m=>{m[id]=v}).then(()=>({id}))},
+    doc:id=>({set:v=>mut(c,m=>{m[id]=v}),update:v=>mut(c,m=>{m[id]={...m[id],...v}}),delete:()=>mut(c,m=>{delete m[id]})})})};
+}
+const getDL=async()=>window.claude?claude.use("downloads"):{save:async({filename,data})=>{const u=URL.createObjectURL(data instanceof Blob?data:new Blob([data]));const a=document.createElement("a");a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}};
+const SUPER={user:"superadmin",pass:"Super@2026",name:"Super Admin"};
+const S={libs:[],students:[],att:[],pay:[],notes:[],audit:[]};let db=null,me=null,tab="seats",ready=false,scanner=null,pick=null;
+const $=s=>document.querySelector(s);
+const esc=t=>String(t==null?"":t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const toast=t=>{const m=$("#msg");m.textContent=t;m.style.display="block";clearTimeout(m._t);m._t=setTimeout(()=>m.style.display="none",2600)};
+const fmt=ts=>new Date(ts).toLocaleString([], {day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});
+try{me=JSON.parse(sessionStorage.getItem("lp_me")||"null")}catch(e){}
+const save=()=>{try{sessionStorage.setItem("lp_me",JSON.stringify(me))}catch(e){}};
+const lib=()=>S.libs.find(l=>l.id===me.lib);
+const mine=()=>S.students.filter(s=>s.lib===me.lib);
+
+async function init(){
+  render();
+  try{
+    const c=window.claude?await claude.use("db"):localDB();
+    if(!c){ready="none";render();return}
+    db=c;
+    for(const k of ["libraries","students","attendance","payments","notices","audit"]){
+      const key={libraries:"libs",students:"students",attendance:"att",payments:"pay",notices:"notes",audit:"audit"}[k];
+      db.collection(k).onSnapshot(sn=>{S[key]=sn.docs.map(d=>({id:d.id,...d.data()}));ready=true;render()},e=>{ready="none";render()});
+    }
+    setTimeout(()=>{if(!ready){ready="none";render()}},10000);
+  }catch(e){ready="none";render()}
+}
+const put=(c,id,d)=>id?db.collection(c).doc(id).set(d):db.collection(c).add(d);
+const upd=(c,id,d)=>db.collection(c).doc(id).update(d);
+const del=(c,id)=>db.collection(c).doc(id).delete();
+
+function greetingView(){
+  const h=new Date().getHours(),hello=h<12?"Good morning":h<17?"Good afternoon":"Good evening";
+  const who=me.role==="super"?(SUPER.name||"Super Admin"):me.role==="admin"?((lib()||{}).adminName||(lib()||{}).adminUser||"Admin"):((S.students.find(s=>s.id===me.sid)||{}).name||"Student");
+  const role={super:"Super Admin workspace",admin:"Library Admin workspace",student:"Student workspace"}[me.role]||"Library workspace";
+  return `<section class="greeting"><div><h2>${hello}, ${esc(who)}</h2><p>${role} · Your library overview is ready.</p></div><div class="greeting-date">${new Date().toLocaleDateString([], {weekday:"short",month:"short",day:"numeric",year:"numeric"})}</div></section>`;
+}
+function appIcon(){return `<span class="app-mark" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 13 24 5l20 8-20 8L4 13Z" fill="#5145CD"/><path d="m13 18 11 4 11-4v5l-11 5-11-5v-5Z" fill="#36C99A"/><path d="M8 27c6-2 11-1 16 2v12c-5-3-10-4-16-2V27Z" fill="#5145CD"/><path d="M40 27c-6-2-11-1-16 2v12c5-3 10-4 16-2V27Z" fill="#36C99A"/><path d="M10 30c4-1 8 0 12 2m-12 2c4-1 8 0 12 2" stroke="#FFF" stroke-width="1.6" stroke-linecap="round"/><path d="M38 30c-4-1-8 0-12 2m12 2c-4-1-8 0-12 2" stroke="#FFF" stroke-width="1.6" stroke-linecap="round"/><path d="M24 13v7" stroke="#36C99A" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="22" r="2" fill="#36C99A"/></svg></span>`}
+function themeIcon(mode){return mode==="dark"?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.7 8.7 0 1 0 20.2 15.4Z"/><path d="M16 3v4m-2-2h4"/></svg>`}
+function themeLabel(){return document.documentElement.dataset.theme==="dark"?"Switch to day mode":"Switch to night mode"}
+function themeButtonMarkup(){const label=themeLabel();return `<button type="button" class="theme-toggle" aria-label="${label}" title="${label}" onclick="toggleTheme()">${themeIcon(document.documentElement.dataset.theme||"light")}</button>`}
+function applyTheme(mode,persist=false){document.documentElement.dataset.theme=mode;if(persist)try{localStorage.setItem("cm_library_theme",mode)}catch(e){}}
+function initTheme(){let mode="light";try{mode=localStorage.getItem("cm_library_theme")||(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}applyTheme(mode)}
+function toggleTheme(){const mode=document.documentElement.dataset.theme==="dark"?"light":"dark";applyTheme(mode,true);document.querySelectorAll(".theme-toggle").forEach(b=>{const label=themeLabel();b.innerHTML=themeIcon(mode);b.setAttribute("aria-label",label);b.title=label})}
+function render(){
+  const a=$("#app");const k=(me?me.role+tab+sT+stab:"x")+window._reg+ready;a.className=k!==window._vk?"w go":"w";window._vk=k;
+  if(ready===false){a.innerHTML='<div class="card">Loading…</div>';return}
+  if(ready==="none"){a.innerHTML='<div class="card"><h2>Shared database unavailable</h2><p class="mu">Please open this page signed in to claude.ai (the owner must share it with Contributor access so admins and students can save data).</p></div>';return}
+  if(!me){return loginView(a)}
+  const top=`<div class="bar"><h1><span class="brand-inline">${appIcon()}<span>CM Library</span></span><span class="mu" style="font-size:13px">${esc({super:"Super Admin",admin:"Admin",student:"Student"}[me.role])}</span></h1><div class="bar-actions">${themeButtonMarkup()}${me.role==="student"?"":`<button class="g" onclick="logout()">Logout</button>`}</div></div>`;
+  a.innerHTML=top+greetingView()+'<div id="body"></div>';
+  ({super:superView,admin:adminView,student:studentView})[me.role]($("#body"));
+}
+function loginView(a){
+  if(window._reg)return regView(a);
+  const brand=`<div class="auth-brand">${appIcon()}<span><span class="auth-brand-name">CM Library</span><span class="auth-brand-sub">Smart Library Management System</span></span></div>`;
+  let remembered="";try{remembered=localStorage.getItem("librix_remembered_user")||""}catch(e){}
+  a.innerHTML=`<main class="auth-shell">${themeButtonMarkup()}<section class="auth-story" aria-label="CM Library introduction">${brand}<div class="auth-story-copy"><div class="auth-eyebrow">Your Library. Your Learning Space.</div><h1>Your library,<br>in rhythm.</h1><p>Find your seat, manage your books, and track your study journey.</p></div><div class="auth-proof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span><strong>A better way to run your library</strong><br>Seats, attendance and membership in one place</span></div></section><section class="auth-panel"><div class="auth-form-wrap"><div class="auth-mobile-brand">${brand}</div><header class="auth-form-head"><h2>Welcome back</h2><p>Sign in to continue to your library workspace.</p></header><div class="auth-error" id="loginError" role="alert" aria-live="polite"></div><form id="loginForm" novalidate onsubmit="event.preventDefault();login()"><div class="auth-field"><label for="u">Username or Mobile Number</label><input id="u" autocomplete="username" placeholder="Enter your username or mobile" value="${esc(remembered)}"></div><div class="auth-field"><label for="p">Password or PIN</label><div class="auth-input-wrap"><input class="auth-password" id="p" type="password" autocomplete="current-password" placeholder="Enter your password or PIN"><button class="auth-show" id="showPass" type="button" aria-label="Show password" aria-pressed="false" onclick="togglePassword()">Show</button></div></div><div class="auth-options"><label class="auth-remember"><input id="rememberMe" type="checkbox" ${remembered?"checked":""}> Remember me</label><button class="auth-link" type="button" onclick="forgot()">Forgot PIN?</button></div><button class="auth-submit" id="loginButton" type="submit">Login</button></form><p class="auth-register">New student? <button class="auth-link" type="button" onclick="window._reg=1;render()">Register here</button></p><div class="auth-foot">By continuing, you’re signing in to <b>CM Library</b>.</div></div></section></main>`;
+}
+function regView(a){
+  const brand=`<div class="auth-brand">${appIcon()}<span><span class="auth-brand-name">CM Library</span><span class="auth-brand-sub">Smart Library Management System</span></span></div>`;
+  a.innerHTML=`<main class="auth-shell auth-register-view">${themeButtonMarkup()}<section class="auth-story" aria-label="CM Library introduction">${brand}<div class="auth-story-copy"><div class="auth-eyebrow">Your Library. Your Learning Space.</div><h1>Start your<br>study journey.</h1><p>Create your student account and your library admin will help you get settled.</p></div><div class="auth-proof"><span><strong>CM Library</strong><br>Library Management System</span></div></section><section class="auth-panel"><div class="auth-form-wrap"><div class="auth-mobile-brand">${brand}</div><h2>Student Registration</h2><p class="mu">Search your library. The admin will approve you and assign a seat.</p>
+  <div class="libpick" id="libpick">
+    <input id="rlq" placeholder="Search library" autocomplete="off" oninput="filtLibs()" onfocus="filtLibs()">
+    <input type="hidden" id="rl" value="">
+    <div class="liblist" id="liblist" hidden></div>
+  </div>
+  <input id="rn" placeholder="Your name"><input id="rp" inputmode="numeric" placeholder="Mobile number"><input id="rk" placeholder="Create a PIN (for login)">
+  <button class="auth-submit big" onclick="register()">Register</button><button class="g big" style="margin-top:8px" onclick="window._reg=0;render()">← Login</button></div></section></main>`;
+}
+function filtLibs(){
+  const q=($("#rlq").value||"").trim().toLowerCase(),box=$("#liblist");
+  if(!box)return;
+  const hits=S.libs.filter(l=>(l.name+" "+(l.address||"")).toLowerCase().includes(q));
+  const picked=$("#rl").value;
+  if(picked){const cur=S.libs.find(l=>l.id===picked);if(!cur||cur.name.toLowerCase()!==($("#rlq").value||"").trim().toLowerCase())$("#rl").value="";}
+  box.hidden=false;
+  box.innerHTML=hits.map(l=>`<button type="button" class="libopt" onclick="pickLib('${esc(l.id)}')"><b>${esc(l.name)}</b><span class="mu">${esc(l.address||"")}</span></button>`).join("")||'<div class="mu" style="padding:12px 14px">No library found</div>';
+}
+function pickLib(id){
+  const l=S.libs.find(x=>x.id===id);if(!l)return;
+  $("#rl").value=l.id;$("#rlq").value=l.name;$("#liblist").hidden=true;
+}
+document.addEventListener("click",e=>{const p=$("#libpick");if(p&&!p.contains(e.target)){const l=$("#liblist");if(l)l.hidden=true}});
+async function register(){
+  const typed=($("#rlq").value||"").trim().toLowerCase();
+  const l=$("#rl").value||(S.libs.find(x=>x.name.toLowerCase()===typed)||{}).id||"";
+  const n=$("#rn").value.trim(),p=$("#rp").value.trim(),k=$("#rk").value.trim();
+  if(!l||!n||!p||!k)return toast("Please fill all fields");
+  if(S.students.some(x=>x.phone===p))return toast("This mobile number is already registered");
+  try{await put("students",null,{lib:l,name:n,phone:p,pin:k,seat:0,fee:0,paid:false,due:"",start:"",end:"",status:"pending",joined:Date.now()});window._reg=0;render();toast("Registered! Waiting for admin approval")}catch(e){toast("Save failed")}
+}
+function togglePassword(){const p=$("#p"),b=$("#showPass"),show=p.type==="password";p.type=show?"text":"password";b.textContent=show?"Hide":"Show";b.setAttribute("aria-label",show?"Hide password":"Show password");b.setAttribute("aria-pressed",String(show))}
+function loginError(message){const e=$("#loginError");if(e){e.textContent=message;e.classList.add("show");$("#u").setAttribute("aria-invalid","true");$("#p").setAttribute("aria-invalid","true")}else toast(message)}
+async function login(){
+  const u=$("#u").value.trim(),p=$("#p").value,button=$("#loginButton"),err=$("#loginError");
+  if(err)err.classList.remove("show");
+  if(!u||!p)return loginError("Enter your username and password to continue.");
+  button.disabled=true;button.textContent="Signing in…";
+  await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,120)));
+  try{if($("#rememberMe").checked)localStorage.setItem("librix_remembered_user",u);else localStorage.removeItem("librix_remembered_user")}catch(e){}
+  if(u===SUPER.user&&p===SUPER.pass)me={role:"super"};
+  else{
+    const l=S.libs.find(l=>l.adminUser===u&&l.adminPass===p);
+    if(l)me={role:"admin",lib:l.id};
+    else{
+      const st=S.students.find(x=>x.phone===u&&x.pin===p);
+      if(!st){button.disabled=false;button.textContent="Login";return loginError("We couldn’t find an account with those details. Check your username and password.")}
+      if(st.status==="pending"){button.disabled=false;button.textContent="Login";return loginError("Your registration is awaiting admin approval. Please check with your library admin.")}
+      if(st.status==="blocked"){button.disabled=false;button.textContent="Login";return loginError("This account is currently blocked. Please contact your library admin.")}
+      me={role:"student",lib:st.lib,sid:st.id};stab="home";stuExtra=null;menuOpen=false;
+    }
+  }
+  save();render();
+}
+function logout(){stopScan();me=null;save();render()}
+
+/* ---------- SUPER ADMIN ---------- */
+let sT="libs",newImg="";
+const money=n=>"₹"+(Math.round((+n||0)*100)/100).toLocaleString("en-IN");
+const imgTag=x=>`<img src="${x}" alt="" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;margin-bottom:8px">`;
+const collected=id=>S.pay.filter(p=>p.lib===id&&p.status==="paid").reduce((x,p)=>x+p.amount,0);
+const NT={update:["📣","Important Update"],offer:["🎁","Offers"],announce:["📢","Announcements"]};
+function readImg(inp,cb){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const w=Math.min(640,i.width),h=i.height*w/i.width,c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(i,0,0,w,h);cb(c.toDataURL("image/jpeg",.7))};i.src=r.result};r.readAsDataURL(f)}
+function setImg(id,inp){readImg(inp,d=>upd("libraries",id,{img:d}).then(()=>toast("Photo updated")).catch(()=>toast("Failed")))}
+async function exportCSV(name,rows){const csv="\ufeff"+rows.map(r=>r.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\n");try{const d=await getDL();if(!d)return toast("Download is not available here");await d.save({filename:name+".csv",data:csv})}catch(e){toast("Download failed")}}
+function noteForm(sup){return `<div class="card"><h2>New notice</h2><select id="nt">${Object.entries(NT).map(([k,v])=>`<option value="${k}">${v[0]} ${v[1]}</option>`).join("")}</select>${sup?`<select id="nl"><option value="all">All libraries</option>${S.libs.map(l=>`<option value="${esc(l.id)}">${esc(l.name)}</option>`).join("")}</select>`:""}<input id="nh" placeholder="Title"><input id="nb" placeholder="Message"><button onclick="postNote()">Send</button></div>`}
+function noteList(canDel){const L=S.notes.filter(n=>(!me.lib||n.lib==="all"||n.lib===me.lib)&&(!n.sid||me.role!=="student"||n.sid===me.sid)).sort((a,b)=>b.ts-a.ts);return `<div class="card"><h2>Notices (${L.length})</h2>`+(L.map(n=>`<div class="row"><div><span class="tag ok">${(NT[n.type]||NT.announce).join(" ")}</span> <b>${esc(n.title)}</b><div class="mu">${esc(n.body)}</div><div class="mu">${fmt(n.ts)}${n.lib==="all"?" · all libraries":""}</div></div>${canDel&&(me.role==="super"||n.lib===me.lib)?`<button class="g" onclick="del('notices','${n.id}')">✕</button>`:""}</div>`).join("")||'<p class="mu">No notices yet.</p>')+"</div>"}
+async function postNote(){const t=$("#nh").value.trim();if(!t)return toast("Enter a title");try{await put("notices",null,{type:$("#nt").value,lib:me.role==="super"?$("#nl").value:me.lib,title:t,body:$("#nb").value.trim(),ts:Date.now()});toast("Notice sent ✅");log("Sent notice: "+t)}catch(e){toast("Failed")}}
+function repRows(){return [["Library","Students","Seats","Booked","Collected","Refunded","Failed txn","Commission %","Commission"]].concat(S.libs.map(l=>{const st=S.students.filter(s=>s.lib===l.id),P=S.pay.filter(p=>p.lib===l.id),c=collected(l.id);return [l.name,st.length,l.seats,st.filter(s=>s.seat).length,c,P.filter(p=>p.status==="refunded").reduce((x,p)=>x+p.amount,0),P.filter(p=>p.status==="failed").length,l.commission||0,Math.round(c*(l.commission||0))/100]}))}
+function subscriptionRows(){const rows=[["Library","Address","Plan","Fee","Start date","End date","Status","Payment method","Recorded at"]];S.libs.forEach(l=>{const history=l.subscriptionHistory||[];if(!history.length)rows.push([l.name,l.address||"","No record","","","","Not recorded","",""]);else history.forEach(x=>rows.push([l.name,l.address||"",x.plan,x.amount,x.start,x.end,x.status,x.method||"",x.recordedAt?new Date(x.recordedAt).toLocaleString():""]))});return rows}
+function superUserRows(){const rows=[["Library","Role","Name or username","Mobile","Seat","Status"]];S.libs.forEach(l=>{rows.push([l.name,"Admin",l.adminUser,"","","Active"]);S.students.filter(s=>s.lib===l.id).forEach(s=>rows.push([l.name,"Student",s.name,s.phone,s.seat||"",s.status]))});return rows}
+function filterLibraryUsers(){const q=(($("#userSearch")||{}).value||"").trim().toLowerCase();document.querySelectorAll(".library-user-group").forEach(g=>g.style.display=(g.dataset.search||"").includes(q)?"":"none")}
+function superView(b){
+  const T=[["libs","🏛 Libraries"],["users","👥 Users"],["notes","📢 Notices"],["rep","📊 Reports"]];
+  let h=`<div class="tabs super-tabs">${T.map(t=>`<button class="${sT===t[0]?"on":""}" onclick="sT='${t[0]}';render()">${t[1]}</button>`).join("")}</div>`;
+  if(sT==="libs"){
+    h+=`<div class="card"><h2>Add library</h2><input id="ln" placeholder="Library name"><input id="la" placeholder="Address / city">
+    <div class="two"><input id="ls" type="number" min="1" placeholder="Total seats"><input id="lc" type="number" min="0" max="100" placeholder="Commission %"></div>
+    <h2 style="margin-top:12px">Initial subscription</h2><div class="two"><select id="lplan"><option value="">Select plan</option><option>Monthly</option><option>Quarterly</option><option>Half-yearly</option><option>Annual</option><option>Custom</option></select><input id="lamount" type="number" min="0" placeholder="Subscription fee ₹"></div>
+    <div class="two"><input id="lstart" type="date" aria-label="Subscription start date"><input id="lend" type="date" aria-label="Subscription end date"></div><select id="lstatus"><option value="paid">Paid</option><option value="pending">Payment pending</option></select>
+    <div class="two"><input id="lu" placeholder="Admin username"><input id="lp" placeholder="Admin password"></div>
+    <label class="mu">Library photo</label><input type="file" accept="image/*" onchange="readImg(this,d=>{newImg=d;toast('Photo ready')})">
+    <button onclick="addLib()">Add library</button></div><h2>Libraries (${S.libs.length})</h2>`+(S.libs.map(l=>{const st=S.students.filter(s=>s.lib===l.id),c=collected(l.id);return `<div class="card">${l.img?imgTag(l.img):""}<b>${esc(l.name)}</b> <span class="mu">${esc(l.address)}</span>
+    <div class="mu">${l.seats} seats · ${st.length} students · Commission ${l.commission||0}% = ${money(c*(l.commission||0)/100)} (collection ${money(c)})</div>
+    <div class="mu">Admin: <b>${esc(l.adminUser)}</b> / ${esc(l.adminPass)}</div>
+    ${subscriptionPanel(l)}
+    <div class="qr" id="q_${l.id}"></div><div class="mu" style="text-align:center">Entrance QR (paste outside the library) · LIB:${esc(l.id)}</div>
+    <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap"><button class="g" onclick="resetPass('${l.id}')">Admin password</button><button class="d" onclick="delLib('${l.id}')">Delete</button></div>
+    <label class="mu">Change photo</label><input type="file" accept="image/*" onchange="setImg('${l.id}',this)"></div>`}).join("")||'<p class="mu">No libraries yet.</p>');
+  }else if(sT==="users"){
+    h+=`<div class="card"><h2>Users by library</h2><p class="mu">Each library’s admin account and students are grouped together.</p><input id="userSearch" class="user-search" placeholder="Search libraries or users" oninput="filterLibraryUsers()"></div>`;
+    h+=S.libs.map(l=>{const st=S.students.filter(s=>s.lib===l.id),q=(l.name+" "+(l.address||"")+" "+l.adminUser+" "+st.map(s=>s.name+" "+s.phone).join(" ")).toLowerCase();return `<details class="card library-user-group" data-search="${esc(q)}"><summary><div><h2 style="margin:0">${esc(l.name)}</h2><span class="mu">${esc(l.address||"No address")} · ${st.length} students</span></div><span class="tag ok">Admin + ${st.length} students</span></summary><div class="library-user-content"><h3 class="user-section-title">Library admin</h3><div class="row"><div class="user-info"><b>${esc(l.adminUser)}</b><div class="mu">Username: ${esc(l.adminUser)} · Password: ${esc(l.adminPass)}</div></div><button class="g" onclick="resetPass('${l.id}')">Change password</button></div><h3 class="user-section-title" style="margin-top:16px">Students (${st.length})</h3>${st.map(s=>`<div class="row"><div class="user-info"><b>${esc(s.name)}</b><div class="mu">${esc(s.phone)} · Seat ${s.seat||"–"}</div></div><div class="user-actions"><span class="tag ${s.status==="active"?"ok":"no"}">${s.status==="pending"?"Pending":s.status==="blocked"?"Blocked":"Active"}</span><button class="g" onclick="blockStu('${s.id}')">${s.status==="blocked"?"Unblock":"Block"}</button><button class="g" aria-label="Remove ${esc(s.name)}" onclick="delStu('${s.id}')">✕</button></div></div>`).join("")||'<p class="mu">No students in this library yet.</p>'}</div></details>`}).join("")||'<div class="card mu">No libraries yet. Add a library to organize its users here.</div>';
+  }else if(sT==="notes"){h+=noteForm(true)+noteList(true)}
+  else{
+    const R=repRows().slice(1),tc=R.reduce((x,r)=>x+r[8],0);
+    h+=`<div class="two"><div class="card" style="text-align:center"><div class="mu">Total collection</div><b style="font-size:20px">${money(R.reduce((x,r)=>x+r[4],0))}</b></div><div class="card" style="text-align:center"><div class="mu">Total commission</div><b style="font-size:20px;color:var(--ok)">${money(tc)}</b></div></div>
+    <div class="card"><h2>Library-wise</h2>`+(R.map(r=>`<div class="row"><div><b>${esc(r[0])}</b><div class="mu">${r[1]} students · ${r[3]}/${r[2]} seats · refund ${money(r[5])} · failed ${r[6]}</div></div><div style="text-align:right"><b>${money(r[4])}</b><div class="mu">comm. ${money(r[8])}</div></div></div>`).join("")||'<p class="mu">No data.</p>')+`</div><div class="card"><h2>Download reports</h2><p class="mu">Export library performance, subscription history, and users grouped by library.</p><div class="report-actions"><button onclick="exportCSV('library-overview',repRows())">⬇ Library overview (CSV)</button><button onclick="exportCSV('subscription-history',subscriptionRows())">⬇ Subscription history (CSV)</button><button onclick="exportCSV('users-by-library',superUserRows())">⬇ Users by library (CSV)</button></div></div>`+auditCard(null);
+  }
+  b.innerHTML=h;
+  if(sT==="libs")S.libs.forEach(l=>{try{new QRCode(document.getElementById("q_"+l.id),{text:"LIB:"+l.id,width:160,height:160})}catch(e){}});
+}
+async function addLib(){
+  const n=$("#ln").value.trim(),s=+$("#ls").value,u=$("#lu").value.trim(),p=$("#lp").value;
+  const plan=$("#lplan").value,amount=$("#lamount").value,start=$("#lstart").value,end=$("#lend").value,status=$("#lstatus").value;
+  if(!n||!s||!u||!p||!plan||amount===""||!start||!end)return toast("Fill in the library and subscription details");
+  if(end<start)return toast("Subscription end date must be after the start date");
+  if(S.libs.some(l=>l.adminUser===u))return toast("Admin username already used");
+  try{await put("libraries",null,{name:n,address:$("#la").value.trim(),seats:s,adminUser:u,adminPass:p,commission:+$("#lc").value||0,img:newImg,created:Date.now(),subscriptionHistory:[{plan,amount:+amount,start,end,status,recordedAt:Date.now(),method:"Initial subscription"}]});newImg="";toast("Library and subscription added");log("Added library "+n+" with "+plan+" subscription") }catch(e){toast("Save failed")}
+}
+function subscriptionPanel(l){
+  const history=(l.subscriptionHistory||[]).slice().sort((a,b)=>(b.recordedAt||0)-(a.recordedAt||0)),cur=history[0];
+  const currentStatus=cur?(cur.status==="paid"&&cur.end&&cur.end<new Date().toISOString().slice(0,10)?"expired":cur.status):"not recorded";
+  return `<div class="card" style="margin:12px 0;background:#fbfbfe"><h2>Subscription <span class="sub-status ${currentStatus}">${esc(currentStatus)}</span></h2>${cur?`<div class="mu">Current plan: <b>${esc(cur.plan)}</b> · ${money(cur.amount)} · ${esc(cur.start||"–")} → ${esc(cur.end||"–")}</div>`:'<div class="mu">No subscription record yet.</div>'}
+  <details class="sub-manage"><summary>＋ Record subscription or renewal</summary><div class="two"><select id="subplan_${l.id}"><option value="">Select plan</option><option>Monthly</option><option>Quarterly</option><option>Half-yearly</option><option>Annual</option><option>Custom</option></select><input id="subamount_${l.id}" type="number" min="0" placeholder="Fee amount ₹"></div><div class="two"><input id="substart_${l.id}" type="date" aria-label="Subscription start date"><input id="subend_${l.id}" type="date" aria-label="Subscription end date"></div><div class="two"><select id="substatus_${l.id}"><option value="paid">Paid</option><option value="pending">Payment pending</option><option value="overdue">Overdue</option></select><select id="submethod_${l.id}"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank transfer</option><option>Other</option></select></div><button onclick="recordSubscription('${l.id}')">Save subscription record</button></details>
+  <div class="sub-history"><b class="mu">Subscription history (${history.length})</b>${history.map(x=>`<div class="row"><div><b>${esc(x.plan)}</b> <span class="mu">${money(x.amount)}</span><div class="mu">${esc(x.start||"–")} → ${esc(x.end||"–")} · Recorded ${x.recordedAt?fmt(x.recordedAt):"–"} · ${esc(x.method||"–")}</div></div><span class="sub-status ${esc(x.status)}">${esc(x.status)}</span></div>`).join("")||'<div class="mu" style="padding-top:6px">No records yet.</div>'}</div></div>`
+}
+async function recordSubscription(id){
+  const l=S.libs.find(x=>x.id===id);if(!l)return;
+  const plan=$("#subplan_"+id).value,amount=$("#subamount_"+id).value,start=$("#substart_"+id).value,end=$("#subend_"+id).value;
+  if(!plan||amount===""||!start||!end)return toast("Enter the plan, amount and subscription dates");
+  if(end<start)return toast("Subscription end date must be after the start date");
+  const item={plan,amount:+amount,start,end,status:$("#substatus_"+id).value,method:$("#submethod_"+id).value,recordedAt:Date.now()};
+  try{await upd("libraries",id,{subscriptionHistory:[...(l.subscriptionHistory||[]),item]});log("Recorded "+plan+" subscription for "+l.name);toast("Subscription record saved")}catch(e){toast("Could not save subscription record")}
+}
+async function resetPass(id){const p=prompt("New admin password");if(p)try{await upd("libraries",id,{adminPass:p});toast("Updated");log("Changed admin password")}catch(e){toast("Failed")}}
+async function delLib(id){if(!confirm("Delete this library and all its students?"))return;
+  try{for(const s of S.students.filter(s=>s.lib===id))await del("students",s.id);for(const a of S.att.filter(a=>a.lib===id))await del("attendance",a.id);for(const p of S.pay.filter(p=>p.lib===id))await del("payments",p.id);await del("libraries",id)}catch(e){toast("Failed")}}
+
+/* ---------- ADMIN ---------- */
+function adminView(b){
+  const l=lib();if(!l){b.innerHTML='<div class="card">Library not found.</div>';return}
+  const st=mine(),inside=S.att.filter(a=>a.lib===l.id&&!a.out),booked=st.filter(s=>s.seat).length;
+  const tabs=[["seats","Seats"],["students","Students"],["pay","Payments"],["live","Attendance"],["notes","Notices"],["rep","Reports"],["qr","QR"]];
+  b.innerHTML=`<div class="card">${l.img?imgTag(l.img):""}<b>${esc(l.name)}</b><div class="mu">${l.seats} seats · ${booked} booked · ${l.seats-booked} free · ${inside.length} inside now</div></div>
+  <div class="tabs">${tabs.map(t=>`<button class="${tab===t[0]?"on":""}" onclick="tab='${t[0]}';render()">${t[1]}</button>`).join("")}</div><div id="tb"></div>`;
+  const t=$("#tb");
+  if(tab==="seats")seatsTab(t,l,st);else if(tab==="students")studentsTab(t,l,st);else if(tab==="pay")payTab(t,l,st);else if(tab==="live")liveTab(t,l,st);else if(tab==="notes")t.innerHTML=noteForm(false)+noteList(true);else if(tab==="rep")repTab(t,l,st);else qrTab(t,l);
+}
+function seatsTab(t,l,st){
+  let h='<div class="card"><div class="legend"><span class="tag ok">Free</span><span class="tag no">Booked</span><span class="mu">Tap a seat</span></div><div class="grid">';
+  for(let i=1;i<=l.seats;i++){const s=st.find(x=>+x.seat===i);h+=`<div class="seat ${s?"b":""}" style="--n:${i}" onclick="seatTap(${i})">${i}<small>${s?esc(s.name):"free"}</small></div>`}
+  t.innerHTML=h+'</div></div>';
+}
+function seatTap(i){const s=mine().find(x=>+x.seat===i);if(s){alert(`Seat ${i}\n${s.name}\n📞 ${s.phone}\nFee: ₹${s.fee} (${s.paid?"Paid":"Due"})`)}else{pick=i;tab="students";render();toast("Seat "+i+" selected")}}
+function studentsTab(t,l,st){
+  const pend=st.filter(s=>s.status==="pending"),taken=new Set(st.map(s=>+s.seat)),opts=[...Array(l.seats)].map((_,i)=>i+1).filter(n=>!taken.has(n));
+  t.innerHTML=`${pend.length?'<div class="card"><h2>Approval pending ('+pend.length+')</h2>'+pend.map(s=>`<div class="row"><div><b>${esc(s.name)}</b><div class="mu">📞 ${esc(s.phone)}</div></div><div style="display:flex;gap:6px"><button onclick="approve(\'${s.id}\')">Approve</button><button class="g" onclick="delStu(\'${s.id}\')">✕</button></div></div>`).join("")+'</div>':""}<div class="card"><h2>Add student</h2><input id="sn" placeholder="Student name">
+  <div class="two"><input id="sp" inputmode="numeric" placeholder="Mobile number"><input id="sk" placeholder="Login PIN"></div>
+  <div class="two"><select id="ss"><option value="">No seat yet</option>${opts.map(n=>`<option ${pick===n?"selected":""}>${n}</option>`).join("")}</select><input id="sf" type="number" placeholder="Monthly fee ₹"></div>
+  <div class="mu">Plan: start date – end date</div><div class="two"><input id="ps" type="date"><input id="pe" type="date"></div><div class="two"><select id="sx"><option value="0">Fee due</option><option value="1">Fee paid</option></select></div>
+  <button onclick="addStu()">Add student</button></div>
+  <div class="card" id="sl"><input id="sq" placeholder="Search by name or mobile" oninput="filt()"><select id="sf2" onchange="filt()"><option value="">All students</option><option value="due">Fee due</option><option value="expired">Plan ended</option></select><h2>Students (${st.length-pend.length})</h2>`+(st.filter(s=>s.status!=="pending").map(s=>`<div class="row" data-q="${esc((s.name+" "+s.phone).toLowerCase())}" data-f="${s.paid?"":"due"} ${s.end&&new Date(s.end+"T23:59:59")<Date.now()?"expired":""}"><div><b>${esc(s.name)}</b> <span class="mu">📞 ${esc(s.phone)}</span><div class="mu">Seat ${s.seat||"–"} · ₹${esc(s.fee)}${s.end?" · "+esc(s.start)+" → "+esc(s.end):""}${s.end&&new Date(s.end+"T23:59:59")<Date.now()?" · ⏰ plan ended":""}${s.resetReq?" · 🔑 PIN reset requested":""}${s.status==="blocked"?" · 🚫 blocked":""}</div></div>
+  <div style="display:flex;gap:6px;align-items:center"><span class="tag ${s.paid?"ok":"no"}" onclick="togglePaid('${s.id}',${!s.paid})" style="cursor:pointer">${s.paid?"Paid":"Due"}</span><button class="g" onclick="editStu('${s.id}')">✎</button><button class="g" onclick="resetPin('${s.id}')">🔑</button><button class="g" onclick="blockStu('${s.id}')">🚫</button><button class="g" onclick="delStu('${s.id}')">✕</button></div></div>`).join("")||'<p class="mu">No students yet.</p>')+'</div>';
+  pick=null;
+}
+async function addStu(){
+  const n=$("#sn").value.trim(),p=$("#sp").value.trim(),k=$("#sk").value.trim();
+  if(!n||!p||!k)return toast("Name, mobile and PIN needed");
+  if(S.students.some(s=>s.phone===p))return toast("Mobile already registered");const sv=+$("#ss").value;if(sv&&mine().some(x=>+x.seat===sv))return toast("This seat was just booked. Pick another");
+  try{await put("students",null,{lib:me.lib,name:n,phone:p,pin:k,seat:$("#ss").value?+$("#ss").value:0,fee:+$("#sf").value||0,due:$("#pe").value,start:$("#ps").value,end:$("#pe").value,status:"active",paid:$("#sx").value==="1",joined:Date.now()});toast("Student added");log("Added student "+n)}catch(e){toast("Save failed")}
+}
+async function approve(id){
+  const seat=+prompt("Seat number (0 = none for now)","0")||0,fee=+prompt("Monthly fee ₹","0")||0;
+  if(seat&&mine().some(x=>+x.seat===seat))return toast("This seat is already booked");
+  try{await upd("students",id,{status:"active",seat,fee});toast("Approved ✅");log("Approved "+(S.students.find(x=>x.id===id)||{}).name)}catch(e){toast("Failed")}
+}
+async function editStu(id){
+  const s=S.students.find(x=>x.id===id),seat=prompt("Seat number (0 = none)",s.seat||0);if(seat===null)return;
+  const fee=prompt("Monthly fee ₹",s.fee),pin=prompt("PIN",s.pin),end=prompt("Plan end date (YYYY-MM-DD)",s.end||"");
+  if(+seat&&mine().some(x=>x.id!==id&&+x.seat===+seat))return toast("This seat is already booked");
+  try{await upd("students",id,{seat:+seat||0,fee:+fee||0,pin:pin||s.pin,end:end||"",due:end||""});toast("Updated ✅");log("Edited student "+s.name)}catch(e){toast("Failed")}
+}
+async function blockStu(id){const s=S.students.find(x=>x.id===id);try{await upd("students",id,{status:s.status==="blocked"?"active":"blocked"});log((s.status==="blocked"?"Unblocked ":"Blocked ")+s.name)}catch(e){toast("Failed")}}
+function payTab(t,l,st){
+  const P=S.pay.filter(p=>p.lib===l.id).sort((a,b)=>b.ts-a.ts),sum=k=>P.filter(p=>p.status===k).reduce((x,p)=>x+p.amount,0),act=st.filter(s=>s.status!=="pending");
+  t.innerHTML=`<div class="two"><div class="card" style="text-align:center"><div class="mu">Collected</div><b style="font-size:20px;color:var(--ok)">${money(sum("paid"))}</b></div><div class="card" style="text-align:center"><div class="mu">Refunded</div><b style="font-size:20px">${money(sum("refunded"))}</b></div></div>
+  <div class="card"><h2>Record a payment</h2><select id="py">${act.map(s=>`<option value="${s.id}">${esc(s.name)} (seat ${s.seat||"–"})</option>`).join("")}</select>
+  <div class="two"><input id="pa" type="number" placeholder="Amount ₹"><select id="pm"><option>Cash</option><option>UPI</option><option>Card</option></select></div>
+  <select id="pst"><option value="paid">Paid</option><option value="failed">Failed</option></select><button onclick="addPay()">Save payment</button></div>
+  <div class="card"><h2>Transactions (${P.length})</h2>`+(P.map(p=>`<div class="row"><div><b>${esc(p.name)}</b> <span class="mu">${money(p.amount)} · ${esc(p.mode)}</span><div class="mu">${fmt(p.ts)}</div></div><div style="display:flex;gap:6px;align-items:center"><span class="tag ${p.status==="paid"?"ok":"no"}">${p.status}</span>${p.status==="paid"?`<button class="g" onclick="refund('${p.id}')">Refund</button>`:""}</div></div>`).join("")||'<p class="mu">No payments yet.</p>')+"</div>";
+}
+async function addPay(){const sid=$("#py").value,a=+$("#pa").value;if(!sid||!a)return toast("Select a student and enter an amount");const s=S.students.find(x=>x.id===sid),stt=$("#pst").value;
+  try{await put("payments",null,{lib:me.lib,sid,name:s.name,amount:a,mode:$("#pm").value,status:stt,ts:Date.now()});if(stt==="paid")await upd("students",sid,{paid:true});toast("Payment saved");log("Payment "+stt+" Rs "+a+" – "+s.name)}catch(e){toast("Failed")}}
+async function refund(id){if(!confirm("Refund this payment?"))return;const p=S.pay.find(x=>x.id===id);try{await upd("payments",id,{status:"refunded",rts:Date.now()});await upd("students",p.sid,{paid:false});toast("Marked as refunded");log("Refunded Rs "+p.amount+" – "+p.name)}catch(e){toast("Failed")}}
+function repTab(t,l,st){
+  const P=S.pay.filter(p=>p.lib===l.id),A=S.att.filter(a=>a.lib===l.id),act=st.filter(s=>s.status!=="pending"),mo=new Date().getMonth();
+  const inM=P.filter(p=>p.status==="paid"&&new Date(p.ts).getMonth()===mo).reduce((x,p)=>x+p.amount,0),td=A.filter(a=>new Date(a.in).toDateString()===new Date().toDateString()).length;
+  const C=[["Students",act.length],["Seats booked",act.filter(s=>s.seat).length+"/"+l.seats],["This month's collection",money(inM)],["Fee due",act.filter(s=>!s.paid).length+" students"],["Today's visits",td],["Failed txn",P.filter(p=>p.status==="failed").length]];
+  t.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1fr">${C.map(c=>`<div class="card" style="margin:0;text-align:center"><div class="mu">${c[0]}</div><b style="font-size:18px">${c[1]}</b></div>`).join("")}</div>
+  <div class="card" style="margin-top:12px"><h2>Export (CSV – opens in Excel)</h2><div style="display:grid;gap:8px"><button onclick="expStu()">⬇ Students report</button><button onclick="expPay()">⬇ Payments report</button><button onclick="expAtt()">⬇ Attendance report</button><button onclick="pdfReport()">⬇ PDF summary</button><button class="g" onclick="remindDue()">🔔 Remind students with fee due</button></div></div>`+auditCard(l.id);
+}
+function expStu(){exportCSV("students",[["Name","Mobile","Seat","Fee","Fee status","Plan start","Plan end"]].concat(mine().map(s=>[s.name,s.phone,s.seat||"",s.fee,s.paid?"Paid":"Due",s.start||"",s.end||""])))}
+function expPay(){exportCSV("payments",[["Date","Student","Amount","Mode","Status"]].concat(S.pay.filter(p=>p.lib===me.lib).map(p=>[fmt(p.ts),p.name,p.amount,p.mode,p.status])))}
+function expAtt(){exportCSV("attendance",[["Student","Seat","Check-in","Check-out","Duration"]].concat(S.att.filter(a=>a.lib===me.lib).sort((a,b)=>b.in-a.in).map(a=>[a.name,a.seat||"",fmt(a.in),a.out?fmt(a.out):"inside",a.out?dur(a.out-a.in):""])))}
+const togglePaid=(id,v)=>upd("students",id,{paid:v}).catch(()=>toast("Failed"));
+async function delStu(id){if(confirm("Remove this student?"))try{const sn=(S.students.find(x=>x.id===id)||{}).name;await del("students",id);log("Removed student "+sn)}catch(e){toast("Failed")}}
+function liveTab(t,l,st){
+  t.innerHTML=`<div class="card"><input id="aq" placeholder="Search student" oninput="alist()"><div class="two"><button class="g" id="ain" onclick="window._ai=!window._ai;alist()">Inside now</button><button class="g" onclick="outAll()">Check out everyone</button></div></div><div class="card"><h2>Check-in log</h2><div id="al"></div></div>`;alist();
+}
+function alist(){
+  const q=($("#aq")||{value:""}).value.toLowerCase(),L=S.att.filter(a=>a.lib===me.lib&&(!window._ai||!a.out)&&String(a.name).toLowerCase().includes(q)).sort((a,b)=>b.in-a.in).slice(0,200);
+  const b=$("#ain");if(b)b.textContent=window._ai?"Show all":"Inside now ("+S.att.filter(a=>a.lib===me.lib&&!a.out).length+")";
+  $("#al").innerHTML=L.map(a=>`<div class="row"><div><b>${esc(a.name)}</b> <span class="mu">Seat ${a.seat||"–"}</span><div class="mu">In ${fmt(a.in)}${a.out?" · Out "+fmt(a.out)+(a.auto?" (auto)":""):""}</div></div>${a.out?'<span class="tag no">Left</span>':`<button class="g" onclick="outOne('${a.id}')">Check out</button>`}</div>`).join("")||'<p class="mu">No check-ins found.</p>';
+}
+async function outOne(id){try{await upd("attendance",id,{out:Date.now()});log("Checked out a student manually")}catch(e){toast("Failed")}}
+async function outAll(){if(!confirm("Check out everyone who is inside?"))return;try{for(const a of S.att.filter(a=>a.lib===me.lib&&!a.out))await upd("attendance",a.id,{out:Date.now(),auto:true});log("Checked out all students");toast("Everyone checked out")}catch(e){toast("Failed")}}
+let qrTimer=null;
+function drawQR(l){const box=$("#qrbox");if(!box)return clearInterval(qrTimer);const x=S.libs.find(v=>v.id===l.id)||l,txt=qrText(x);if(box.dataset.t===txt)return;box.dataset.t=txt;box.innerHTML="";try{new QRCode(box,{text:txt,width:220,height:220})}catch(e){}const c=$("#qrcode");if(c)c.textContent=txt}
+function qrTab(t,l){
+  clearInterval(qrTimer);
+  if(!l.secret)upd("libraries",l.id,{secret:Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)});
+  t.innerHTML=`<div class="card" style="text-align:center"><h2>${esc(l.name)} – Entry QR</h2><p class="mu">${l.rot?"Live mode: the QR changes every 30 seconds. Show it on a screen at the entrance.":"Print and paste at the entrance. Students scan it to check in or out."}</p><div class="qr" id="qrbox"></div><b id="qrcode"></b>
+  <div class="two" style="margin-top:10px"><button class="g" onclick="upd('libraries','${l.id}',{rot:${!l.rot}})">${l.rot?"Switch to fixed QR":"Switch to live QR"}</button><button class="g" onclick="setGeo('${l.id}')">${l.geo?"📍 Update location":"📍 Set location"}</button></div>
+  <div class="mu" style="margin-top:6px">${l.geo?"Students must be within 200 m of the library to check in.":"Location check is off."}</div></div><div class="card"><b>Library photo</b><input type="file" accept="image/*" onchange="setImg('${l.id}',this)"></div>`;
+  drawQR(l);if(l.rot)qrTimer=setInterval(()=>drawQR(l),5000);
+}
+function setGeo(id){here().then(c=>upd("libraries",id,{geo:{lat:c.latitude,lng:c.longitude}})).then(()=>{log("Set library location");toast("Location saved")}).catch(()=>toast("Allow location access to set it"))}
+
+/* ---------- STUDENT ---------- */
+let stab="home",stuExtra=null,menuOpen=false;
+const payHist=id=>{const P=S.pay.filter(p=>p.sid===id).sort((a,b)=>b.ts-a.ts).slice(0,6);return `<div class="card"><h2>💳 Payments</h2>`+(P.map(p=>`<div class="row"><span>${dt(p.ts)} · ${money(p.amount)} <span class="mu">${esc(p.mode)}</span></span><span class="tag ${p.status==="paid"?"ok":"no"}">${p.status}</span></div>`).join("")||'<p class="mu">No payments yet.</p>')+"</div>"};
+const dt=t=>new Date(t).toLocaleDateString([],{day:"2-digit",month:"short",year:"numeric"}),tm=t=>new Date(t).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+const pd=x=>x?dt(x+"T00:00:00"):"–",dur=ms=>Math.floor(ms/3600000)+"h "+Math.floor(ms%3600000/60000)+"m";
+function monthChart(sid){
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth(),days=new Date(y,m+1,0).getDate();
+  const hours=Array(days).fill(0),present=Array(days).fill(false);
+  S.att.filter(a=>a.sid===sid).forEach(a=>{
+    const d=new Date(a.in);if(d.getFullYear()!==y||d.getMonth()!==m)return;
+    present[d.getDate()-1]=true;
+    hours[d.getDate()-1]+=Math.max(0.25,((a.out||Date.now())-a.in)/36e5);
+  });
+  const max=Math.max(1,...hours),W=340,H=150,gap=3,bw=(W-gap*(days-1))/days;
+  let bars="";
+  for(let i=0;i<days;i++){
+    const bh=present[i]?Math.max(10,(hours[i]/max)*(H-28)):5,x=i*(bw+gap),y0=H-22-bh,today=i+1===now.getDate();
+    bars+=`<rect x="${x.toFixed(2)}" y="${y0.toFixed(2)}" width="${bw.toFixed(2)}" height="${bh.toFixed(2)}" rx="2.5" fill="${present[i]?"#6b5bd6":"#ddd9ee"}"${today?' stroke="#2a2740" stroke-width="1.2"':""}/>`;
+    if(i===0||i+1===days||(i+1)%5===0)bars+=`<text x="${x.toFixed(2)}" y="${H-4}" font-size="9" fill="#7a7894">${i+1}</text>`;
+  }
+  const n=present.filter(Boolean).length,label=now.toLocaleString("en-IN",{month:"long",year:"numeric"});
+  return `<div class="card chart-wrap"><div class="row" style="border:0;padding-top:0"><div><h2 style="margin:0">Attendance this month</h2><div class="mu">${label}</div></div><div style="text-align:right"><b style="font-size:22px">${n}</b><div class="mu">days attended</div></div></div>
+  <svg viewBox="0 0 ${W} ${H}" width="100%" height="160" role="img" aria-label="Attendance in ${label}">${bars}</svg>
+  <div class="mu">${n?n+" day"+(n===1?"":"s")+" checked in this month.":"No check-ins this month yet."} Taller bars mean more hours.</div></div>`;
+}
+function stuGo(p){menuOpen=false;if(p==="home"){stab="home";stuExtra=null}else{stab="profile";stuExtra=p}render()}
+function menuSheet(){
+  const items=[["Home","stuGo('home')"],["Overdue details","stuGo('due')"],["Change password","stuGo('pass')"],["Privacy policy","stuGo('privacy')"],["About us","stuGo('about')"],["Share app","shareApp()"],["Support","stuGo('support')"],["Log out","logout()"]];
+  return `<div class="sheet" onclick="if(event.target===this){menuOpen=false;render()}"><div class="card"><div class="mu" style="text-align:center;padding:6px 0 2px">Menu</div>`+items.map(([n,fn],i)=>`<button class="${i===items.length-1?"d":"g"} big" onclick="menuOpen=false;${fn}">${n}</button>`).join("")+`</div></div>`;
+}
+function subHead(title){return `<div class="card" style="display:flex;align-items:center;gap:10px"><button class="g" onclick="stuExtra=null;render()">←</button><h2 style="margin:0">${title}</h2></div>`}
+async function changePin(){
+  const s=S.students.find(x=>x.id===me.sid),cur=$("#cp0").value,n1=$("#cp1").value.trim(),n2=$("#cp2").value.trim();
+  if(!s)return;
+  if(cur!==String(s.pin))return toast("Current password is wrong");
+  if(n1.length<4)return toast("Use at least 4 characters");
+  if(n1!==n2)return toast("New password does not match");
+  try{await upd("students",s.id,{pin:n1});toast("Password changed");stuExtra=null;render()}catch(e){toast("Failed")}
+}
+async function shareApp(){
+  menuOpen=false;render();
+  const url=location.origin+location.pathname,text="CM Library – your library seat, fees and attendance.";
+  if(navigator.share){try{await navigator.share({title:"CM Library",text,url});return}catch(e){if(e&&e.name==="AbortError")return}}
+  try{await navigator.clipboard.writeText(url);toast("App link copied")}catch(e){prompt("Copy this link",url)}
+}
+async function sendSupport(){
+  const m=$("#supmsg").value.trim(),s=S.students.find(x=>x.id===me.sid);
+  if(!m)return toast("Write a message");
+  try{await put("notices",null,{type:"update",lib:me.lib,title:"Support · "+s.name,body:m+" ("+s.phone+")",ts:Date.now()});toast("Sent to your library");stuExtra=null;render()}catch(e){toast("Failed")}
+}
+function studentView(b){
+  const s=S.students.find(x=>x.id===me.sid),l=lib();
+  if(!s||!l){b.innerHTML='<div class="card">Account not found.</div>';return}
+  if(!["home","scan","profile"].includes(stab))stab="home";
+  const at=S.att.filter(a=>a.sid===s.id).sort((a,c)=>c.in-a.in),open=at.find(a=>!a.out);
+  const T=[["home","Home"],["scan","Scan"],["profile","Profile"]];
+  let h=`<div class="tabs">${T.map(t=>`<button class="${stab===t[0]?"on":""}" onclick="stopScan();stab='${t[0]}';stuExtra=null;menuOpen=false;render()">${t[1]}</button>`).join("")}</div>`;
+  if(stab==="home"){
+    h+=`<div class="card welcome"><div class="mu">${esc(l.name)}${l.address?" · "+esc(l.address):""}</div><h2>Today's status</h2>
+    <div style="margin-top:10px"><span class="tag ${open?"ok":"no"}">${open?"In the library since "+tm(open.in):"Not in the library"}</span></div></div>`+monthChart(s.id);
+  }else if(stab==="scan"){
+    h+=`<div class="card" style="text-align:center"><p class="mu">Scan the QR outside the library to ${open?"check out":"check in"}.</p>
+    <button class="scan" onclick="startScan()"><span>📷</span>${open?"Check out":"Check in"}</button><div id="scanbox"></div>
+    <div class="mu" style="margin:10px 0 2px">Camera not working? Type the code printed below the QR:</div>
+    <div class="two"><input id="mc" placeholder="LIB:xxxx"><button class="g" onclick="handle($('#mc').value)">Submit</button></div></div>`;
+  }else{
+    const left=s.end?Math.ceil((new Date(s.end+"T23:59:59")-Date.now())/864e5):null;
+    if(stuExtra==="due"){
+      const ended=left!==null&&left<0;
+      h+=subHead("Overdue details");
+      h+=`<div class="card" style="${s.paid?"":"border-color:var(--no)"}"><b style="${s.paid?"":"color:var(--no)"}">${s.paid?"Fee clear":"Fee due"}</b><div class="mu">${s.paid?"No fee pending.":"Please pay "+money(s.fee)+" at the library desk."}</div><div class="mu">Due date: ${pd(s.due||s.end)}</div></div>`;
+      h+=`<div class="card"><b>Plan</b><div class="mu">${pd(s.start)} → ${pd(s.end)}${left===null?"":ended?" · plan ended":" · "+left+" days left"}</div><div class="mu" style="margin-top:6px">Seat ${s.seat||"–"}</div></div>`+payHist(s.id);
+    }else if(stuExtra==="pass"){
+      h+=subHead("Change password")+`<div class="card"><label class="mu">Current password</label><input id="cp0" type="password" autocomplete="current-password"><label class="mu">New password</label><input id="cp1" type="password" autocomplete="new-password"><label class="mu">Confirm new password</label><input id="cp2" type="password" autocomplete="new-password"><button class="big" onclick="changePin()">Save password</button></div>`;
+    }else if(stuExtra==="privacy"){
+      h+=subHead("Privacy policy")+`<div class="card"><p>CM Library keeps your name, mobile number, seat, fee and attendance on this device (or the shared library database your admin uses). Passwords are used only to sign you in.</p><p>Your library admin can see your profile, payments and check-in history. We do not sell this data.</p><p class="mu">Ask your library admin to delete your account if you leave.</p></div>`;
+    }else if(stuExtra==="about"){
+      h+=subHead("About us")+`<div class="card"><h2 style="margin-top:0">CM Library</h2><p>A simple app for private libraries: your seat, fee, QR check-in and this month's attendance.</p><p class="mu">${esc(l.name)}${l.address?" · "+esc(l.address):""}</p></div>`;
+    }else if(stuExtra==="support"){
+      h+=subHead("Support")+`<div class="card"><p class="mu">Message ${esc(l.name)}. Your admin will see it in notices.</p><input id="supmsg" placeholder="How can we help?"><button class="big" onclick="sendSupport()">Send</button></div>`;
+    }else{
+      const ini=esc((s.name||"?").trim().charAt(0).toUpperCase());
+      h+=`<div class="card"><div class="row" style="border:0;align-items:center"><div class="who">${ini}</div><div style="flex:1"><b>${esc(s.name)}</b><div class="mu">${esc(l.name)}</div><div class="mu">📞 ${esc(s.phone)} · Seat ${s.seat||"–"}</div></div><button class="dots" aria-label="Menu" onclick="menuOpen=!menuOpen;render()">⋮</button></div></div>`;
+    }
+  }
+  if(menuOpen)h+=menuSheet();
+  b.innerHTML=h;
+}
+async function startScan(){
+  if(!("BarcodeDetector" in window)||!navigator.mediaDevices)return toast("Camera scan unsupported here – type the code instead");
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    const v=document.createElement("video");v.setAttribute("playsinline","");v.srcObject=stream;await v.play();
+    $("#scanbox").appendChild(v);scanner={stream,on:true};
+    const det=new BarcodeDetector({formats:["qr_code"]});
+    const loop=async()=>{if(!scanner||!scanner.on)return;try{const r=await det.detect(v);if(r.length){const c=r[0].rawValue;stopScan();return handle(c)}}catch(e){}requestAnimationFrame(loop)};loop();
+  }catch(e){toast("Camera permission denied – type the code instead")}
+}
+function stopScan(){if(scanner){scanner.on=false;scanner.stream.getTracks().forEach(t=>t.stop());scanner=null}const sb=$("#scanbox");if(sb)sb.innerHTML=""}
+const log=t=>db&&put("audit",null,{lib:me.lib||"",who:me.role==="super"?"Super Admin":"Admin",text:t,ts:Date.now()}).catch(()=>{});
+const auditCard=id=>{const L=S.audit.filter(a=>!id||a.lib===id).sort((a,b)=>b.ts-a.ts).slice(0,30);return `<div class="card" style="margin-top:12px"><h2>Activity log</h2>`+(L.map(a=>`<div class="row"><div>${esc(a.text)}<div class="mu">${esc(a.who)} · ${fmt(a.ts)}</div></div></div>`).join("")||'<p class="mu">No activity yet.</p>')+"</div>"};
+const tok=(sec,w)=>{let h=5381;const t=sec+":"+w;for(let i=0;i<t.length;i++)h=(h*33^t.charCodeAt(i))>>>0;return h.toString(36).slice(0,5)};
+const win=()=>Math.floor(Date.now()/30000);
+const qrText=l=>l.rot?"LIB:"+l.id+":"+tok(l.secret||"",win()):"LIB:"+l.id;
+const here=()=>new Promise((res,rej)=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:true,timeout:8000}):rej());
+const dist=(a,b,c,d)=>{const r=x=>x*Math.PI/180,q=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 12742000*Math.asin(Math.sqrt(q))};
+function filt(){const q=$("#sq").value.toLowerCase(),f=$("#sf2").value;document.querySelectorAll("#sl .row").forEach(r=>{r.style.display=(r.dataset.q||"").includes(q)&&(!f||(r.dataset.f||"").includes(f))?"":"none"})}
+async function resetPin(id){const s=S.students.find(x=>x.id===id),p=String(1000+Math.floor(Math.random()*9000));if(!confirm("Reset PIN for "+s.name+"?"))return;try{await upd("students",id,{pin:p,resetReq:false});log("Reset PIN of "+s.name);alert("New PIN for "+s.name+": "+p+"\nShare it with the student.")}catch(e){toast("Failed")}}
+async function forgot(){const m=prompt("Enter your registered mobile number");if(!m)return;const s=S.students.find(x=>x.phone===m.trim());if(!s)return toast("No student found with this number");try{await upd("students",s.id,{resetReq:true});toast("Request sent. Your admin will give you a new PIN")}catch(e){toast("Failed")}}
+async function remindDue(){const due=mine().filter(s=>s.status!=="pending"&&!s.paid);if(!due.length)return toast("No students have fee due");if(!confirm("Send a fee reminder to "+due.length+" student(s)?"))return;try{for(const s of due)await put("notices",null,{type:"update",lib:me.lib,sid:s.id,title:"Fee due",body:"Hi "+s.name+", your fee of ₹"+s.fee+" is due. Please pay at the library desk.",ts:Date.now()});log("Sent fee reminders to "+due.length+" students");toast("Reminders sent ✅")}catch(e){toast("Failed")}}
+async function pdfReport(){
+  try{const {jsPDF}=window.jspdf,d=new jsPDF(),l=lib(),st=mine().filter(s=>s.status!=="pending"),P=S.pay.filter(p=>p.lib===l.id).sort((a,b)=>b.ts-a.ts);let y=16;
+  const ln=(t,sz=10,b=0)=>{if(y>280){d.addPage();y=16}d.setFontSize(sz);d.setFont("helvetica",b?"bold":"normal");d.text(String(t),14,y);y+=sz*0.6+2};
+  const sum=k=>P.filter(p=>p.status===k).reduce((x,p)=>x+p.amount,0);
+  ln(l.name+" - Report",16,1);ln(new Date().toLocaleDateString(),9);y+=3;
+  ln("Students: "+st.length+"   Seats booked: "+st.filter(s=>s.seat).length+"/"+l.seats,11);
+  ln("Collected: Rs "+sum("paid")+"   Refunded: Rs "+sum("refunded"),11);y+=3;
+  ln("Fee due",12,1);st.filter(s=>!s.paid).forEach(s=>ln(s.name+"  ("+s.phone+")  Seat "+(s.seat||"-")+"  Rs "+s.fee));y+=3;
+  ln("Recent payments",12,1);P.slice(0,40).forEach(p=>ln(fmt(p.ts)+"  "+p.name+"  Rs "+p.amount+"  "+p.mode+"  "+p.status));
+  const dl=await getDL();await dl.save({filename:"library-report.pdf",data:d.output("arraybuffer")});
+  }catch(e){toast("PDF failed: "+(e.message||"try again"))}
+}
+async function handle(code){
+  const s=S.students.find(x=>x.id===me.sid),l=lib(),p=String(code||"").trim().split(":");
+  if(p[0]!=="LIB"||p[1]!==s.lib)return toast("This QR is not for your library");
+  if(l.rot&&![win(),win()-1].some(w=>tok(l.secret||"",w)===(p[2]||"").toLowerCase()))return toast("This QR has expired. Scan the live QR at the library");
+  const now=Date.now();let open=S.att.find(a=>a.sid===s.id&&!a.out);
+  if(!open&&s.end&&new Date(s.end+"T23:59:59")<now)return toast("Your plan has ended. Please renew with the admin");
+  if(l.geo){try{const c=await here();if(dist(l.geo.lat,l.geo.lng,c.latitude,c.longitude)>200)return toast("You must be at the library to scan")}catch(e){return toast("Turn on location to check in")}}
+  try{
+    if(open&&now-open.in>14*36e5){await upd("attendance",open.id,{out:open.in+14*36e5,auto:true});open=null}
+    if(open){await upd("attendance",open.id,{out:now});toast("Checked out ✅ See you!")}
+    else{await put("attendance",null,{lib:s.lib,sid:s.id,name:s.name,seat:s.seat,in:now,out:null});toast("Checked in ✅ Happy studying!")}
+  }catch(e){toast("Failed, try again")}
+}
+
+initTheme();
+init();
+</script></body></html>

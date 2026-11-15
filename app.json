@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "CM Library",
+    "slug": "cm-library-native",
+    "version": "1.0.0",
+    "scheme": "cmlibrary",
+    "orientation": "portrait",
+    "icon": "./assets/cm-library-icon.png",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow CM Library to scan attendance QR codes.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cmlibrary.mobile"
+    },
+    "android": {
+      "package": "com.cmlibrary.mobile",
+      "permissions": ["CAMERA"],
+      "adaptiveIcon": {
+        "backgroundColor": "#5A321F",
+        "foregroundImage": "./assets/cm-library-foreground.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/cm-library-icon.png"
+    }
+  }
+}
