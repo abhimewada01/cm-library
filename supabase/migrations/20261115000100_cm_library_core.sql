@@ -168,20 +168,6 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
 for each row execute procedure public.handle_new_auth_user();
 
-create or replace function public.prevent_profile_role_change()
-returns trigger language plpgsql security definer set search_path = public
-as $$
-begin
-  if new.role is distinct from old.role and not public.is_super_admin() then
-    raise exception 'Only a Super Admin can change account roles';
-  end if;
-  return new;
-end;
-$$;
-drop trigger if exists profiles_role_guard on public.profiles;
-create trigger profiles_role_guard before update of role on public.profiles
-for each row execute procedure public.prevent_profile_role_change();
-
 alter table public.profiles enable row level security;
 alter table public.libraries enable row level security;
 alter table public.library_applications enable row level security;
@@ -196,7 +182,9 @@ alter table public.backup_jobs enable row level security;
 alter table public.backup_events enable row level security;
 
 grant usage on schema public to authenticated;
-grant select, update on public.profiles to authenticated;
+revoke all on public.profiles from anon, authenticated;
+grant select on public.profiles to authenticated;
+grant update (name, mobile) on public.profiles to authenticated;
 grant select on public.libraries to authenticated;
 grant select, insert, update on public.library_applications to authenticated;
 grant select on public.subscriptions to authenticated;
