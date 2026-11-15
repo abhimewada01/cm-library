@@ -33,6 +33,30 @@ select Node 22. The API uses Node.js, Python 3 (standard-library SQLite bridge),
 and a local SQLite database at `server/data/library.sqlite`. Keep `.env` and
 `server/data/` private; they contain signing secrets and account records.
 
+## Supabase project setup (migration in progress)
+
+The Supabase project for CM Library is `gormwrvxstkgavupangf`. The repository
+contains a first PostgreSQL schema migration at
+`supabase/migrations/20261115000100_cm_library_core.sql`, including tenant-scoped
+RLS policies, a private Storage bucket, and Super Admin-only backup metadata.
+
+To apply the schema, install the Supabase CLI, authenticate with `supabase login`,
+then run `supabase link --project-ref gormwrvxstkgavupangf` and
+`supabase db push`. Review the SQL migration and create a database backup before
+applying it. Create the first Super Admin auth user in Supabase, then promote that
+account by setting its `public.profiles.role` to `super_admin` from the SQL Editor.
+
+Add the project URL and publishable key to your local `.env` using the
+`EXPO_PUBLIC_SUPABASE_*` names in `.env.example`. Keep all `SUPABASE_SERVICE_ROLE_KEY`,
+database passwords, off-site backup credentials, and encryption keys server-side;
+never use them in `EXPO_PUBLIC_*` variables or commit them to GitHub.
+
+This migration is a schema foundation only. The current Expo app and API still
+authenticate and read/write application data through the existing Express/SQLite
+backend. Do not switch production logins or claim that backups are active until
+the Supabase data/auth adapter, separate off-site target, staging project, and
+real restore verification are configured and exercised.
+
 ## First Super Admin login
 
 On the first API startup with an empty database, the server creates a Super
