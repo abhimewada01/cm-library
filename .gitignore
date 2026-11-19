@@ -34,6 +34,8 @@ yarn-error.*
 .env*.local
 .env
 server/data/
+expo-local*.log
+server/api-local*.log
 
 # typescript
 *.tsbuildinfo

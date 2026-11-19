@@ -91,6 +91,17 @@ monthly totals. Reports can be exported as CSV. The library assistant answers
 ID, member, fee and seat questions from live database metrics; it does not send
 library data to an external AI provider.
 
+### WhatsApp fee reminders
+
+The Fees screen can send a private WhatsApp reminder to each active student
+with a balance due for the selected month. Configure the server-only
+`WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` and
+`WHATSAPP_TEMPLATE_NAME` values in `.env`, then restart the API. The approved
+WhatsApp Utility template must have four body variables in this order: student
+name, amount due, fee month and library name. `WHATSAPP_TEMPLATE_LANGUAGE` and
+`WHATSAPP_GRAPH_API_VERSION` can be set to match the template and Meta app.
+Keep the access token out of Expo variables and client builds.
+
 API routes are implemented in `server/index.mjs`; SQLite calls and schema live
 in `server/sqlite_bridge.py` and `server/index.mjs`. The native client adapter is
 in `src/api/libraryApi.ts`, with typed service contracts in

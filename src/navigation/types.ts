@@ -11,12 +11,15 @@ export type RootStackParamList = {
 
 export type StudentTabParamList = {
   Home: undefined;
+  Notices: undefined;
   Scan: undefined;
+  Overdue: undefined;
   Profile: undefined;
 };
 
 export type LibraryAdminTabParamList = {
   Dashboard: undefined;
+  Attendance: undefined;
   SeatMap: undefined;
   Members: { status?: 'active'|'inactive'|'all'|'pending' } | undefined;
   Fees: undefined;

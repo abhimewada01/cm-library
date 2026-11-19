@@ -1,17 +1,20 @@
 import { BookOpenCheck } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
+import { useAppPreferences } from '../preferences/AppPreferences';
 import { palette } from '../theme';
 
-export function Brand() {
+export function Brand({ themed = false }: { themed?: boolean }) {
+  const { colors: preferenceColors } = useAppPreferences();
+  const colors = themed ? preferenceColors : palette;
   return (
     <View style={styles.row}>
-      <View style={styles.mark}>
-        <BookOpenCheck color={palette.primary} size={23} strokeWidth={2.2} />
+      <View style={[styles.mark,{ backgroundColor: colors.softAccent, borderColor: colors.border }]}>
+        <BookOpenCheck color={colors.primary} size={23} strokeWidth={2.2} />
       </View>
       <View>
-        <Text variant="titleLarge" style={styles.name}>CM Library</Text>
-        <Text variant="labelSmall" style={styles.subtitle}>Library Management System</Text>
+        <Text variant="titleLarge" style={[styles.name,{ color: colors.text }]}>CM Library</Text>
+        <Text variant="labelSmall" style={[styles.subtitle,{ color: colors.muted }]}>Library Management System</Text>
       </View>
     </View>
   );
@@ -25,10 +28,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: palette.lightPink,
     borderWidth: 1,
-    borderColor: '#F6CCE0',
   },
-  name: { color: palette.text, fontWeight: '800', letterSpacing: -0.3 },
-  subtitle: { color: palette.muted, marginTop: 1, letterSpacing: 0.15 },
+  name: { fontWeight: '800', letterSpacing: -0.3 },
+  subtitle: { marginTop: 1, letterSpacing: 0.15 },
 });

@@ -11,8 +11,38 @@ export type StudentProfile = {
 export type AttendanceDay = {
   date: string;
   checkInAt?: string;
+  checkOutAt?: string | null;
+  durationMinutes?: number | null;
+  durationSeconds?: number | null;
+};
+
+export type AdminAttendanceRecord = {
+  id: string;
+  name: string;
+  mobile: string;
+  seatNumber: number | null;
+  checkInAt: string;
+  checkOutAt: string | null;
+  durationMinutes: number;
+};
+
+export type AttendanceScanResult = {
+  status: 'checked_in' | 'checked_out';
+  checkInAt: string;
   checkOutAt?: string;
+  durationSeconds?: number;
   durationMinutes?: number;
+};
+
+export type StudentFeeSummary = {
+  month: string;
+  monthlyFee: number;
+  paidAmount: number;
+  amountDue: number;
+  paymentStatus: 'paid' | 'due';
+  dueDate: null;
+  libraryName: string;
+  librarianMobile: string;
 };
 
 export type Notice = {
@@ -20,6 +50,16 @@ export type Notice = {
   title: string;
   message: string;
   createdAt: string;
+};
+
+export type UserAlert = {
+  id: string;
+  kind: 'student_fee_due' | 'subscription_expired' | string;
+  title: string;
+  body: string;
+  createdAt: string;
+  readAt: string | null;
+  pushStatus: 'pending' | 'sent' | 'failed' | 'no_device';
 };
 
 export type AuthSession = {
@@ -103,7 +143,17 @@ export type StudentMembershipPass = {
 export type PendingLibraryStudent = { id: string; name: string; mobile: string; requestedAt: string };
 export type AdminLibrary = { id: string; name: string; place: string; seatCount: number; status: string; subscription: SubscriptionApproval | null };
 export type SubscriptionRecord = SubscriptionApproval & { id: string; libraryId: string; libraryName: string; place: string; createdAt: string };
-export type AttendanceQr = { libraryId: string; qrPayload: string; expiresInSeconds: number; qrDataUrl: string };
+export type SuperAdminLibrary = {
+  id: string; publicCode: string; name: string; place: string; seatCount: number; status: LibraryApplicationStatus;
+  adminName: string; adminUsername: string; adminMobile: string;
+  activeMembers: number; pendingStudents: number; occupiedSeats: number; revenueThisMonth: number;
+  subscription: SubscriptionApproval | null;
+};
+export type SuperAdminStudent = {
+  id: string; name: string; mobile: string; status: 'pending'|'approved'|'rejected';
+  memberStatus: 'pending'|'active'|'inactive'; seatNumber: number|null; monthlyFee: number; feePaid: number;
+};
+export type AttendanceQr = { libraryId: string; qrPayload: string; qrDataUrl: string };
 export type PinResetRequest = { id: string; name: string; mobile: string; requestedAt: string };
 export type AdminDashboard = {
   libraryId: string; publicCode: string; libraryName: string; place: string; seatCount: number;
@@ -117,6 +167,7 @@ export type LibraryMember = {
 };
 export type NewAdminStudent = { name: string; mobile: string; pin: string; seatNumber: number; fee: number };
 export type AdminFee = { id: string; studentName: string; mobile: string; seatNumber: number; amount: number; feeMonth: string; paidOn: string; note: string };
+export type WhatsAppReminderResult = { sent: number; failed: number; feeMonth: string };
 export type AdminExpense = { id: string; title: string; category: string; amount: number; spentOn: string; note: string };
 export type AssistantResponse = { question: string; answer: string; source: string; generatedAt: string };
 
@@ -128,13 +179,25 @@ export interface LibraryApi {
   requestPinReset(mobile: string): Promise<void>;
   getStudentProfile(): Promise<StudentProfile>;
   getAttendance(month: string): Promise<AttendanceDay[]>;
+  getStudentFeeSummary(month: string): Promise<StudentFeeSummary>;
+  checkOutAttendance(): Promise<AttendanceScanResult>;
   getNotices(): Promise<Notice[]>;
+  registerPushToken(token: string, platform: 'android'|'ios'|'web'): Promise<void>;
+  getAdminAlerts(): Promise<UserAlert[]>;
+  getSuperAdminAlerts(): Promise<UserAlert[]>;
+  markAlertRead(id: string): Promise<void>;
   getStudentMembershipPass(): Promise<StudentMembershipPass>;
-  recordQrAttendance(qrValue: string): Promise<void>;
+  recordQrAttendance(qrValue: string): Promise<AttendanceScanResult>;
   updateProfile(input: Pick<StudentProfile, 'name' | 'mobile'>): Promise<StudentProfile>;
   changePin(currentPin: string, nextPin: string): Promise<void>;
   submitLibraryApplication(input: NewLibraryApplication): Promise<{ applicationId: string; status: 'pending' }>;
   getPendingLibraryApplications(): Promise<LibraryApplication[]>;
+  getSuperAdminLibraries(): Promise<SuperAdminLibrary[]>;
+  getSuperAdminLibraryStudents(libraryId: string): Promise<SuperAdminStudent[]>;
+  updateSuperAdminLibrarySeats(libraryId: string, seatCount: number): Promise<void>;
+  updateSuperAdminStudentFee(libraryId: string, studentId: string, monthlyFee: number): Promise<void>;
+  addSuperAdminSubscription(libraryId: string, input: SubscriptionApproval): Promise<void>;
+  changeSuperAdminPassword(currentPassword: string, nextPassword: string): Promise<void>;
   /** Approval activates the library/admin login and records the subscription. */
   reviewLibraryApplication(
     id: string,
@@ -148,6 +211,7 @@ export interface LibraryApi {
   getPendingLibraryStudents(): Promise<PendingLibraryStudent[]>;
   getSubscriptionHistory(): Promise<SubscriptionRecord[]>;
   getAdminAttendanceQr(): Promise<AttendanceQr>;
+  getAdminAttendance(date: string): Promise<AdminAttendanceRecord[]>;
   getPendingPinResets(): Promise<PinResetRequest[]>;
   resetStudentPin(requestId: string, newPin: string): Promise<void>;
   getAdminDashboard(): Promise<AdminDashboard>;
@@ -155,9 +219,13 @@ export interface LibraryApi {
   addAdminStudent(input: NewAdminStudent): Promise<StudentMembershipPass>;
   getAdminFees(month: string): Promise<AdminFee[]>;
   recordAdminFee(input: { studentId: string; amount: number; feeMonth: string; note?: string }): Promise<void>;
+  markAdminFeeUnpaid(studentId: string, feeMonth: string): Promise<void>;
   getAdminExpenses(month: string): Promise<AdminExpense[]>;
   addAdminExpense(input: { title: string; category: string; amount: number; note?: string }): Promise<void>;
   createLibraryNotice(input: { title: string; message: string }): Promise<void>;
+  sendFeeDueNotices(feeMonth: string): Promise<{ sent: number; feeMonth: string }>;
+  getWhatsAppStatus(): Promise<{ configured: boolean }>;
+  sendWhatsAppFeeReminders(feeMonth: string): Promise<WhatsAppReminderResult>;
   askLibraryAssistant(question: string): Promise<AssistantResponse>;
   downloadLibraryReport(month: string): Promise<string>;
 }
